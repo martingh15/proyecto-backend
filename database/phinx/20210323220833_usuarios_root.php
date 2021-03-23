@@ -9,6 +9,7 @@ final class UsuariosRoot extends AbstractMigration
         $hoy = \Carbon\Carbon::now()->format('Y-m-d H:i');
         $this->execute("INSERT INTO usuarios VALUES (default, 'Martín', 'martinghiotti2013@gmail.com', null, null, null, 1, '$10$0hakHJWsP2G1aMeqJj0NHumx9rZyMPlDSUqBLt5r6rA2yJjDQZujO', '$hoy', '$hoy', null, null);");
         $this->execute("INSERT INTO usuarios VALUES (default, 'Bernardo', 'bernardopolidoro@gmail.com', null, null, null, 1, '$10$0hakHJWsP2G1aMeqJj0NHumx9rZyMPlDSUqBLt5r6rA2yJjDQZujO', '$hoy', '$hoy', null, null);");
+        $this->execute("INSERT INTO usuarios VALUES (default, 'Administrador', 'administrador@gmail.com', null, null, null, 1, '$10$0hakHJWsP2G1aMeqJj0NHumx9rZyMPlDSUqBLt5r6rA2yJjDQZujO', '$hoy', '$hoy', null, null);");
         $this->execute("INSERT INTO `proyecto`.`usuario_rol` VALUES (
                 (SELECT id FROM roles WHERE nombre = 'root'),
                 (SELECT id FROM usuarios WHERE nombre = 'Martín')
@@ -19,9 +20,15 @@ final class UsuariosRoot extends AbstractMigration
                 (SELECT id FROM usuarios WHERE nombre = 'Bernardo')
             )
         ");
+        $this->execute("INSERT INTO `proyecto`.`usuario_rol` VALUES (
+                (SELECT id FROM roles WHERE nombre = 'admin'),
+                (SELECT id FROM usuarios WHERE nombre = 'Administrador')
+            )
+        ");
     }
 
     public function down(): void {
-
+        $this->execute("DELETE FROM usuario_rol;");
+            $this->execute("DELETE FROM usuarios;");
     }
 }
