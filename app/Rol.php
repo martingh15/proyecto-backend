@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Rol extends Model {
 
-    const ROL_ROOT = 'root';
+    const ROL_ROOT  = 'root';
+    const ROL_ADMIN = 'admin';
 
     protected $table = "roles";
 

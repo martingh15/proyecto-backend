@@ -8,6 +8,7 @@ use App\Rol;
 use App\Usuario;
 use App\UsuarioRol;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -82,5 +83,12 @@ class UsuarioService  {
         $usuario->fechaTokenReset = null;
         $usuario->save();
         return response(['usuario' => $usuario]);
+    }
+
+    public function getUsuarioLogueado() {
+        $idUsuario          = Auth::user()->id;
+        $usuario            = Usuario::where('id', $idUsuario)->with('roles')->first();
+        $usuario['esAdmin'] = $usuario->tieneRol(Rol::ROL_ADMIN);
+        return $usuario;
     }
 }

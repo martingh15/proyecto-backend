@@ -55,7 +55,8 @@ class UsuarioController extends Controller
 
     public function create()
     {
-        return Auth::user();
+        $servicio = $this->getUsuarioService();
+        return $servicio->getUsuarioLogueado();
     }
 
     /**

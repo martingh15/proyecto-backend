@@ -17,11 +17,11 @@ class UsuarioRol extends Model {
 
     public function usuario()
     {
-        return $this->hasOne(Usuario::class);
+        return $this->hasOne(Usuario::class, 'id', 'idUsuario');
     }
 
     public function rol()
     {
-        return $this->hasOne(Rol::class);
+        return $this->hasOne(Rol::class, 'id', 'idRol');
     }
 }
