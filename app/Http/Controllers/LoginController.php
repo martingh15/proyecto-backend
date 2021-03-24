@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\OlvidePassword;
+use App\Rol;
 use App\Services\UsuarioService;
 use Exception;
 use Illuminate\Contracts\Routing\ResponseFactory;
@@ -65,7 +66,13 @@ class LoginController extends Controller {
                 ), 500);
             }
             //Genero token
-            $token = JWTAuth::fromUser($usuario, ['idUsuario' => $usuario->id, 'nombre' => $usuario->nombre . " " . $usuario->apellido]);
+            $datosToken = [
+                'idUsuario' => $usuario->id,
+                'esAdmin'   => $usuario->tieneRol(Rol::ROL_ADMIN),
+                'nombre'    => $usuario->nombre . " " . $usuario->apellido
+            ];
+            \Log::info($datosToken);
+            $token = JWTAuth::fromUser($usuario, $datosToken);
             //Si hubo problema con token
             if (!$token) {
                 return response()->json(['error' => 'invalid_credentials'], 401);
