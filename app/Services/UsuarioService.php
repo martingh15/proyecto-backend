@@ -86,9 +86,40 @@ class UsuarioService  {
     }
 
     public function getUsuarioLogueado() {
-        $idUsuario          = Auth::user()->id;
-        $usuario            = Usuario::where('id', $idUsuario)->with('roles')->first();
-        $usuario['esAdmin'] = $usuario->tieneRol(Rol::ROL_ADMIN);
+        $idUsuario              = Auth::user()->id;
+        $usuario                = Usuario::where('id', $idUsuario)->with('roles')->first();
+        $usuario['esAdmin']     = $usuario->tieneRol(Rol::ROL_ADMIN);
+        $usuario['operaciones'] = $this->getOperacionesUsuario($usuario);
         return $usuario;
+    }
+
+    protected function getOperacionesUsuario(Usuario $usuario): array {
+        $esAdmin          = $usuario['esAdmin'];
+        $operaciones      = [];
+        $operacionesAdmin = [];
+        if ($esAdmin) {
+            $operacionesAdmin = $this->getOperacionesAdmin();
+        }
+        $operaciones = array_merge($operaciones, $operacionesAdmin);
+        return $operaciones;
+    }
+
+    protected function getOperacionesAdmin(): array {
+        return [
+            [
+                'ruta'        => '/admin/usuario',
+                'icono'       => '',
+                'rol'         => Rol::ROL_ADMIN,
+                'titulo'      => 'Usuarios',
+                'descripcion' => 'Permite crear usuarios con diferentes roles',
+            ],
+            [
+                'ruta'        => '/compras',
+                'icono'       => '',
+                'rol'         => Rol::ROL_ADMIN,
+                'titulo'      => 'Compras',
+                'descripcion' => 'Permite gestionar las compras'
+            ]
+        ];
     }
 }

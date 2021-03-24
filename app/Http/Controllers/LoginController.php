@@ -71,7 +71,6 @@ class LoginController extends Controller {
                 'esAdmin'   => $usuario->tieneRol(Rol::ROL_ADMIN),
                 'nombre'    => $usuario->nombre . " " . $usuario->apellido
             ];
-            \Log::info($datosToken);
             $token = JWTAuth::fromUser($usuario, $datosToken);
             //Si hubo problema con token
             if (!$token) {
