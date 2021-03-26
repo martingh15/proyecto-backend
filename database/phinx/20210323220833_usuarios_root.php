@@ -16,7 +16,17 @@ final class UsuariosRoot extends AbstractMigration
             )
         ");
         $this->execute("INSERT INTO `proyecto`.`usuario_rol` VALUES (
+                (SELECT id FROM roles WHERE nombre = 'admin'),
+                (SELECT id FROM usuarios WHERE nombre = 'Martín')
+            )
+        ");
+        $this->execute("INSERT INTO `proyecto`.`usuario_rol` VALUES (
                 (SELECT id FROM roles WHERE nombre = 'root'),
+                (SELECT id FROM usuarios WHERE nombre = 'Bernardo')
+            )
+        ");
+        $this->execute("INSERT INTO `proyecto`.`usuario_rol` VALUES (
+                (SELECT id FROM roles WHERE nombre = 'admin'),
                 (SELECT id FROM usuarios WHERE nombre = 'Bernardo')
             )
         ");
