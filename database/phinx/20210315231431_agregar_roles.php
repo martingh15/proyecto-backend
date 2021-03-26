@@ -11,6 +11,7 @@ final class AgregarRoles extends AbstractMigration
         $this->execute("INSERT INTO roles VALUES(default, 'admin', 'Administrador', 'Administrador del sistema. Se encarga del ingreso y creación de usuarios', 0, 1, '$hoy', '$hoy', null, null);");
         $this->execute("INSERT INTO roles VALUES(default, 'mozo', 'Mozo', 'Persona que puede gestiona las mesas', 0, 1, '$hoy', '$hoy', null, null);");
         $this->execute("INSERT INTO roles VALUES(default, 'comensal', 'Comensal', 'Usuario que realiza pedidos online', 0, 1, '$hoy', '$hoy', null, null);");
+        $this->execute("INSERT INTO roles VALUES(default, 'vendedor', 'Vendedor', 'Usuario que realiza ventas desde la caja', 0, 1, '$hoy', '$hoy', null, null);");
     }
 
     public function down(): void {

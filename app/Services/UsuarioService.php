@@ -21,27 +21,71 @@ class UsuarioService  {
         return Usuario::where('email', $email)->first();
     }
 
-    public function registrarUsuario(Request $request) {
+    public function registrarUsuario(Request $request, string $tipoRegistro) {
 
-        $usuarioGuardado = Usuario::where('email', $request['email'])->first();
+        $dni               = $request['dni'] ?? '';
+        $clave             = $request['password'] ?? '';
+        $tipoRegistroAdmin = $tipoRegistro === "admin";
 
-        if (!empty($usuarioGuardado)) {
+        if ($tipoRegistroAdmin) {
+            $id       = Auth::user()->id;
+            $logueado = Usuario::where('id', $id)->first();
+            $esAdmin  = $logueado->tieneRol(Rol::ROL_ADMIN);
+            if (!$esAdmin) {
+                return Response::json(array(
+                    'code' => 500,
+                    'message' => "No está autorizado para realizar esta operación."
+                ), 500);
+            }
+        }
+
+        $emailRepetido = Usuario::where('email', $request['email'])->first();
+        if (!empty($emailRepetido)) {
             return Response::json(array(
                 'code' => 500,
                 'message' => "Ya existe un usuario con ese email."
             ), 500);
         }
 
+        $dniRepetido = null;
+        if ($tipoRegistroAdmin) {
+            $dniRepetido = Usuario::where('dni', $request['dni'])->first();
+        }
+        if ($dniRepetido !== null && !empty($dniRepetido)) {
+            return Response::json(array(
+                'code' => 500,
+                'message' => "Ya existe un usuario con ese dni."
+            ), 500);
+        }
+
         try {
+
             DB::beginTransaction();
             $usuario = new Usuario();
-            $usuario->email      = $request['email'];
-            $usuario->password   = Hash::make($request['password']);
-            $usuario->nombre     = $request['nombre'];
+            $usuario->email  = $request['email'];
+            $usuario->nombre = $request['nombre'];
+            if ($tipoRegistroAdmin) {
+                $clave               = $dni;
+                $usuario->dni        = $dni;
+                $usuario->habilitado = 1;
+            }
+            $usuario->password   = Hash::make($clave);
             $usuario->tokenEmail = Str::random(64);
             $usuario->save();
 
-            $rol   = Rol::where('nombre', Rol::ROL_ROOT)->first();
+            $rolBuscar = Rol::ROL_COMENSAL;
+            $rol       = $request['rol'];
+            if ($tipoRegistroAdmin) {
+                $encontrado = in_array($rol, Rol::ROLES);
+                if (!$encontrado) {
+                    return Response::json(array(
+                        'code' => 500,
+                        'message' => "El rol ingresado no es un rol válido."
+                    ), 500);
+                }
+                $rolBuscar = $rol;
+            }
+            $rol   = Rol::where('nombre', $rolBuscar)->first();
             $idRol = $rol->id;
 
             $usuarioRol = new UsuarioRol();
@@ -59,9 +103,15 @@ class UsuarioService  {
                 'errores' => $e->getMessage()
             ], 500);
         }
+        $mensaje = "¡Se ha registro con éxito! Para poder ingresar debe validar su email ingresando al link que le enviamos a su correo.";
+        if ($tipoRegistroAdmin) {
+            $legible = $rol->legible;
+            $mensaje = "El usuario de rol $legible fue creado correctamente. Para ingresar debe ingresar con su dni como contraseña. Se le enviará un email recordándole la situación";
+        }
         return Response::json(array(
-            'code' => 200,
-            'message' => "Usuario creado correctamente."
+            'code'    => 200,
+            'message' => $mensaje,
+            'admin'   => $tipoRegistroAdmin
         ), 200);
     }
 
@@ -107,7 +157,7 @@ class UsuarioService  {
     protected function getOperacionesAdmin(): array {
         return [
             [
-                'ruta'        => '/admin/usuario',
+                'ruta'        => '/registro/admin',
                 'icono'       => '',
                 'rol'         => Rol::ROL_ADMIN,
                 'titulo'      => 'Usuarios',

@@ -6,6 +6,7 @@ use App\Usuario;
 use App\Services\UsuarioService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
 
 class UsuarioController extends Controller
 {
@@ -33,7 +34,26 @@ class UsuarioController extends Controller
             'nombre' => 'required'
         ]);
         $servicio = $this->getUsuarioService();
-        return $servicio->registrarUsuario($request);
+        return $servicio->registrarUsuario($request, 'comun');
+    }
+
+    public function registroAdmin(Request $request)
+    {
+        $tipoRegistro = $request['tipoRegistro'] ?? '';
+        if ($tipoRegistro === '' || $tipoRegistro !== "admin") {
+            return Response::json(array(
+                'code' => 500,
+                'message' => "Hubo un error intentado registrar al usuario, contáctese con el administrador."
+            ), 500);
+        }
+        $this->validate($request, [
+            'email'    => 'email|required',
+            'dni'      => 'required',
+            'rol'      => 'required',
+            'nombre'   => 'required'
+        ]);
+        $servicio = $this->getUsuarioService();
+        return $servicio->registrarUsuario($request, $tipoRegistro);
     }
 
     public function update(Request $request)
