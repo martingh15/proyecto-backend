@@ -185,11 +185,16 @@ class UsuarioService  {
                     ->orWhere("roles.nombre", Rol::ROL_VENDEDOR);
             })
             ->where('usuarios.id', '<>', $logueado->id)
-            ->groupBy('usuarios.id')->orderBy('usuarios.nombre')->get();
+            ->groupBy('usuarios.id')
+            ->orderByRaw('usuarios.nombre ASC')->get();
         $array = [];
         foreach ($usuarios as $item) {
             $array[] = Usuario::where('id', $item->id)->with('roles')->first();
         }
-        return array_merge($array, [$logueado]);
+        $todos = array_merge($array, [$logueado]);
+        usort($todos, function($a, $b) {
+            return strcmp($a["nombre"], $b["nombre"]);
+        });
+        return $todos;
     }
 }
