@@ -176,18 +176,20 @@ class UsuarioService  {
     }
 
     public function getUsuarios(): array {
-        $usuario  = $this->getUsuarioLogueado(false);
+        $logueado = $this->getUsuarioLogueado(false);
         $usuarios = DB::table('usuarios')->selectRaw('usuarios.id')
             ->join("usuario_rol", "usuarios.id", "=", "usuario_rol.idUsuario")
             ->join("roles", "usuario_rol.idRol", "=", "roles.id")
             ->where(function ($query) {
                 $query->orWhere("roles.nombre", Rol::ROL_MOZO)
                     ->orWhere("roles.nombre", Rol::ROL_VENDEDOR);
-            })->orderBy('usuarios.nombre')->get();
+            })
+            ->where('usuarios.id', '<>', $logueado->id)
+            ->groupBy('usuarios.id')->orderBy('usuarios.nombre')->get();
         $array = [];
         foreach ($usuarios as $item) {
             $array[] = Usuario::where('id', $item->id)->with('roles')->first();
         }
-        return array_merge($array, [$usuario]);
+        return array_merge($array, [$logueado]);
     }
 }
