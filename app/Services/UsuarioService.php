@@ -135,11 +135,13 @@ class UsuarioService  {
         return response(['usuario' => $usuario]);
     }
 
-    public function getUsuarioLogueado() {
-        $idUsuario              = Auth::user()->id;
-        $usuario                = Usuario::where('id', $idUsuario)->with('roles')->first();
-        $usuario['esAdmin']     = $usuario->tieneRol(Rol::ROL_ADMIN);
-        $usuario['operaciones'] = $this->getOperacionesUsuario($usuario);
+    public function getUsuarioLogueado(bool $conOperaciones = true) {
+        $idUsuario          = Auth::user()->id;
+        $usuario            = Usuario::where('id', $idUsuario)->with('roles')->first();
+        $usuario['esAdmin'] = $usuario->tieneRol(Rol::ROL_ADMIN);
+        if ($conOperaciones) {
+            $usuario['operaciones'] = $this->getOperacionesUsuario($usuario);
+        }
         return $usuario;
     }
 
@@ -157,11 +159,11 @@ class UsuarioService  {
     protected function getOperacionesAdmin(): array {
         return [
             [
-                'ruta'        => '/registro/admin',
+                'ruta'        => '/gestion/usuarios',
                 'icono'       => '',
                 'rol'         => Rol::ROL_ADMIN,
                 'titulo'      => 'Usuarios',
-                'descripcion' => 'Permite crear usuarios con diferentes roles',
+                'descripcion' => 'Permite gestionar los usuarios del sistema',
             ],
             [
                 'ruta'        => '/compras',
@@ -171,5 +173,21 @@ class UsuarioService  {
                 'descripcion' => 'Permite gestionar las compras'
             ]
         ];
+    }
+
+    public function getUsuarios(): array {
+        $usuario  = $this->getUsuarioLogueado(false);
+        $usuarios = DB::table('usuarios')->selectRaw('usuarios.id')
+            ->join("usuario_rol", "usuarios.id", "=", "usuario_rol.idUsuario")
+            ->join("roles", "usuario_rol.idRol", "=", "roles.id")
+            ->where(function ($query) {
+                $query->orWhere("roles.nombre", Rol::ROL_MOZO)
+                    ->orWhere("roles.nombre", Rol::ROL_VENDEDOR);
+            })->orderBy('usuarios.nombre')->get();
+        $array = [];
+        foreach ($usuarios as $item) {
+            $array[] = Usuario::where('id', $item->id)->with('roles')->first();
+        }
+        return array_merge($array, [$usuario]);
     }
 }

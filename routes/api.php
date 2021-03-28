@@ -29,4 +29,5 @@ Route::group(['middleware' => 'jwt.auth','jwt.refresh'], function () {
     Route::get('/usuarios/create', 'UsuarioController@create');
     Route::put('/usuarios/{id}', 'UsuarioController@update');
     Route::post("/registro-admin", 'UsuarioController@registroAdmin');
+    Route::get("/usuarios", 'UsuarioController@index');
 });

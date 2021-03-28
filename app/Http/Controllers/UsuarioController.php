@@ -65,7 +65,8 @@ class UsuarioController extends Controller
 
     public function index()
     {
-        return Usuario::all();
+        $servicio = $this->getUsuarioService();
+        return $servicio->getUsuarios();
     }
 
     public function store(Request $request)
