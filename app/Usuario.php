@@ -65,10 +65,15 @@ class Usuario extends Authenticatable
         return $this->belongsToMany(Rol::class, 'usuario_rol', 'idUsuario', 'idRol');
     }
 
-    public function tieneRol(string $nombre): bool {
+    public function tieneRol(string $nombre, bool $esAdmin = false): bool {
+		if ($esAdmin) {
+			return true;
+		}
         $roles = $this->roles;
         foreach ($roles as $rol) {
             $nombreRol = $rol['nombre'];
+			$persona = $this->nombre;
+			\Log::info("$persona tiene rol $nombreRol");
             if ($nombre === $nombreRol) {
                 return true;
             }

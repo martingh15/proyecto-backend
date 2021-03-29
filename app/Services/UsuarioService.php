@@ -212,9 +212,11 @@ class UsuarioService  {
     }
 
     public function getUsuarioLogueado(bool $conOperaciones = true) {
-        $idUsuario          = Auth::user()->id;
-        $usuario            = Usuario::where('id', $idUsuario)->with('roles')->first();
-        $usuario['esAdmin'] = $usuario->tieneRol(Rol::ROL_ADMIN);
+        $idUsuario					= Auth::user()->id;
+        $usuario					= Usuario::where('id', $idUsuario)->with('roles')->first();
+		$usuario['esMozo']			= $usuario->tieneRol(Rol::ROL_MOZO);
+		$usuario['esAdmin']			= $usuario->tieneRol(Rol::ROL_ADMIN);
+		$usuario['esVendedor']		= $usuario->tieneRol(Rol::ROL_VENDEDOR);
         if ($conOperaciones) {
             $usuario['operaciones'] = $this->getOperacionesUsuario($usuario);
         }
@@ -265,7 +267,11 @@ class UsuarioService  {
             ->orderByRaw('usuarios.nombre ASC')->get();
         $array = [];
         foreach ($usuarios as $item) {
-            $array[] = Usuario::where('id', $item->id)->with('roles')->first();
+            $usuario			   = Usuario::where('id', $item->id)->with('roles')->first();
+			$usuario['esMozo']	   = $usuario->tieneRol(Rol::ROL_MOZO);
+			$usuario['esAdmin']	   = $usuario->tieneRol(Rol::ROL_ADMIN);
+			$usuario['esVendedor'] = $usuario->tieneRol(Rol::ROL_VENDEDOR);
+			$array[] = $usuario;
         }
         $todos = array_merge($array, [$logueado]);
         usort($todos, function($a, $b) {
