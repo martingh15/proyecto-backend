@@ -105,8 +105,7 @@ class UsuarioService  {
         }
         $mensaje = "¡Se ha registro con éxito! Para poder ingresar debe validar su email ingresando al link que le enviamos a su correo.";
         if ($tipoRegistroAdmin) {
-            $legible = $rol->legible;
-            $mensaje = "El usuario de rol $legible fue creado correctamente. Para ingresar debe ingresar con su dni como contraseña. Se le enviará un email recordándole la situación";
+            $mensaje = "El usuario fue creado correctamente. Para ingresar debe ingresar con su dni como contraseña.";
         }
         return Response::json(array(
             'code'    => 200,
