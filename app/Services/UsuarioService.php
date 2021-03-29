@@ -176,7 +176,7 @@ class UsuarioService  {
 	}
 	/**
 	 * Si $admin es true verificamos que el usuario logueado sea admin ya que
-	 * el usuario logueado está editando otro usuario.
+	 * el usuario logueado está editando otro usuario con los roles.
 	 * 
 	 * @param array $usuarioArray
 	 * @param bool $admin
@@ -204,7 +204,7 @@ class UsuarioService  {
 		}
         if (isset($usuarioArray['password'])) {
             $usuario->password = Hash::make($usuarioArray['password']);
-        }        
+        }
         $usuario->tokenReset      = null;
         $usuario->fechaTokenReset = null;
         $usuario->save();
@@ -212,11 +212,8 @@ class UsuarioService  {
     }
 
     public function getUsuarioLogueado(bool $conOperaciones = true) {
-        $idUsuario					= Auth::user()->id;
-        $usuario					= Usuario::where('id', $idUsuario)->with('roles')->first();
-		$usuario['esMozo']			= $usuario->tieneRol(Rol::ROL_MOZO);
-		$usuario['esAdmin']			= $usuario->tieneRol(Rol::ROL_ADMIN);
-		$usuario['esVendedor']		= $usuario->tieneRol(Rol::ROL_VENDEDOR);
+        $idUsuario = Auth::user()->id;
+        $usuario   = Usuario::where('id', $idUsuario)->with('roles')->first();
         if ($conOperaciones) {
             $usuario['operaciones'] = $this->getOperacionesUsuario($usuario);
         }
@@ -267,11 +264,7 @@ class UsuarioService  {
             ->orderByRaw('usuarios.nombre ASC')->get();
         $array = [];
         foreach ($usuarios as $item) {
-            $usuario			   = Usuario::where('id', $item->id)->with('roles')->first();
-			$usuario['esMozo']	   = $usuario->tieneRol(Rol::ROL_MOZO);
-			$usuario['esAdmin']	   = $usuario->tieneRol(Rol::ROL_ADMIN);
-			$usuario['esVendedor'] = $usuario->tieneRol(Rol::ROL_VENDEDOR);
-			$array[] = $usuario;
+			$array[] = Usuario::where('id', $item->id)->with('roles')->first();
         }
         $todos = array_merge($array, [$logueado]);
         usort($todos, function($a, $b) {

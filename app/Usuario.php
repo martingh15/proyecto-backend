@@ -40,6 +40,8 @@ class Usuario extends Authenticatable
         'password'
     ];
 
+	protected $appends = [ 'esAdmin', 'esMozo', 'esVendedor' ];
+	
     /**
      * The "booted" method of the model.
      *
@@ -73,11 +75,40 @@ class Usuario extends Authenticatable
         foreach ($roles as $rol) {
             $nombreRol = $rol['nombre'];
 			$persona = $this->nombre;
-			\Log::info("$persona tiene rol $nombreRol");
             if ($nombre === $nombreRol) {
                 return true;
             }
         }
         return false;
+    }
+	
+	/**
+     * Indica si el usuario es administrador
+	 * 
+     * @return bool
+     */
+    public function getEsAdminAttribute()
+    {
+        return $this->tieneRol(Rol::ROL_ADMIN);
+    }
+	
+	/**
+     * Indica si el usuario es mozo
+	 * 
+     * @return bool
+     */
+    public function getEsMozoAttribute()
+    {
+        return $this->tieneRol(Rol::ROL_MOZO);
+    }
+	
+	/**
+     * Indica si el usuario es vendedor
+	 * 
+     * @return bool
+     */
+    public function getEsVendedorAttribute()
+    {
+        return $this->tieneRol(Rol::ROL_VENDEDOR);
     }
 }
