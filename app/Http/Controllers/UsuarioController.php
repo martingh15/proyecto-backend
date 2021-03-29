@@ -49,7 +49,6 @@ class UsuarioController extends Controller
         $this->validate($request, [
             'email'    => 'email|required',
             'dni'      => 'required',
-            'rol'      => 'required',
             'nombre'   => 'required'
         ]);
         $servicio = $this->getUsuarioService();

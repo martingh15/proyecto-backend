@@ -7,6 +7,7 @@ use App\Mail\ValidarEmail;
 use App\Rol;
 use App\Usuario;
 use App\UsuarioRol;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -72,26 +73,16 @@ class UsuarioService  {
             $usuario->password   = Hash::make($clave);
             $usuario->tokenEmail = Str::random(64);
             $usuario->save();
-
-            $rolBuscar = Rol::ROL_COMENSAL;
-            $rol       = $request['rol'];
-            if ($tipoRegistroAdmin) {
-                $encontrado = in_array($rol, Rol::ROLES);
-                if (!$encontrado) {
-                    return Response::json(array(
-                        'code' => 500,
-                        'message' => "El rol ingresado no es un rol válido."
-                    ), 500);
-                }
-                $rolBuscar = $rol;
-            }
-            $rol   = Rol::where('nombre', $rolBuscar)->first();
-            $idRol = $rol->id;
-
-            $usuarioRol = new UsuarioRol();
-            $usuarioRol->idRol     = $idRol;
-            $usuarioRol->idUsuario = $usuario->id;
-            $usuarioRol->save();
+			
+			$usuarioArray = json_decode($request->getContent(), true);
+			$resultado    = $this->agregarRolesUsuario($usuario, $usuarioArray, $tipoRegistroAdmin);
+			if ($resultado->error()) {
+				$errores = $resultado->getMensajesError();
+				return response()->json([
+					'message' => 'Ha ocurrido un error al crear el usuario.',
+					'errores' => $errores
+				], 500);
+			}
 
             //Mail::to($usuario->email)->send(new ValidarEmail($usuario));
 
@@ -114,6 +105,75 @@ class UsuarioService  {
         ), 200);
     }
 
+	/**
+	 * Agrega los roles al usuario según la request
+	 * 
+	 * @param Usuario $usuario
+	 * @param array $usuarioArray
+	 * @param bool $tipoRegistroAdmin
+	 * @return Resultado
+	 */
+	protected function agregarRolesUsuario(Usuario $usuario, array $usuarioArray, bool $tipoRegistroAdmin): Resultado {
+		$resultado = new Resultado();
+		try {
+			if ($tipoRegistroAdmin) {
+				$esAdministrador = isset($usuarioArray['esAdministrador']) && $usuarioArray['esAdministrador'];
+				if ($esAdministrador) {
+					$adminAgregado = $this->agregarRol($usuario, Rol::ROL_ADMIN);
+					if ($adminAgregado->error()) {
+						$resultado->fusionar($adminAgregado);
+					}
+				}
+				$esMozo = isset($usuarioArray['esMozo']) && $usuarioArray['esMozo'];
+				if ($esMozo) {
+					$mozoAgregado = $this->agregarRol($usuario, Rol::ROL_MOZO);
+					if ($mozoAgregado->error()) {
+						$resultado->fusionar($mozoAgregado);
+					}
+				}
+				$esVendedor = isset($usuarioArray['esVendedor']) && $usuarioArray['esVendedor'];
+				if ($esVendedor) {
+					$vendedorAgregado = $this->agregarRol($usuario, Rol::ROL_VENDEDOR);
+					if ($vendedorAgregado->error()) {
+						$resultado->fusionar($vendedorAgregado);
+					}
+				}
+			} else {
+				$agregado = $this->agregarRol($usuario, Rol::ROL_COMENSAL);
+				if ($agregado->error()) {
+					$resultado->fusionar($agregado);
+				}
+			}
+		} catch (Throwable $t) {
+			$resultado->agregarError(Resultado::ERROR_GENERICO, (string) $t);
+		}
+
+		return $resultado;		
+	}
+	
+	/**
+	 * Agrega un rol al usuario
+	 * 
+	 * @param Usuario $usuario
+	 * @param string $rol
+	 * @return Resultado
+	 */
+	protected function agregarRol(Usuario $usuario, string $rol): Resultado {
+		$resultado = new Resultado();
+		try {
+			$rol   = Rol::where('nombre', $rol)->first();
+			$idRol = $rol->id;
+
+			$usuarioRol				 = new UsuarioRol();
+			$usuarioRol->idRol		 = $idRol;
+			$usuarioRol->idUsuario	 = $usuario->id;
+			$usuarioRol->save();
+		} catch (Throwable $t) {
+			$resultado->agregarError(Resultado::ERROR_GENERICO, "Hubo un error al agregar el rol $rol.");
+		}
+		return $resultado;
+			
+	}
 	/**
 	 * Si $admin es true verificamos que el usuario logueado sea admin ya que
 	 * el usuario logueado está editando otro usuario.
