@@ -71,7 +71,9 @@ class UsuarioController extends Controller
 
     public function store(Request $request)
     {
-
+        $servicio    = $this->getUsuarioService();
+        $bodyContent = json_decode($request->getContent(), true);
+        return $servicio->updateUsuario($bodyContent, true);
     }
 
     public function create()

@@ -114,21 +114,38 @@ class UsuarioService  {
         ), 200);
     }
 
-    public function updateUsuario($bodyContent) {
-        $usuario = Usuario::find($bodyContent["id"]);
-        $usuario->fill($bodyContent);
-        if (empty($usuario))
+	/**
+	 * Si $admin es true verificamos que el usuario logueado sea admin ya que
+	 * el usuario logueado está editando otro usuario.
+	 * 
+	 * @param array $usuarioArray
+	 * @param bool $admin
+	 * @return type
+	 */
+    public function updateUsuario(array $usuarioArray, bool $admin = false) {
+		if ($admin) {
+			$idLogueado = Auth::user()->id;
+			$usuario	= Usuario::find($idLogueado);
+			$esAdmin	= $usuario->tieneRol(Rol::ROL_ADMIN);
+			if (!$esAdmin) {
+				 return Response::json(array(
+					'code' => 401,
+					'message' => "No está autorizado para editar usuarios."
+				), 401);
+			}
+		}
+        $usuario = Usuario::find($usuarioArray["id"]);
+        $usuario->fill($usuarioArray);
+        if (empty($usuario)) {
             return Response::json(array(
-                'code' => 401,
+                'code' => 404,
                 'message' => "Usuario no encontrado, ingresen nuevamente"
             ), 401);
-        if (isset($bodyContent['nombre_modificado']) && $bodyContent['nombre_modificado'] !== "") {
-            $usuario->nombre = $bodyContent['nombre_modificado'];
-        }
-        if (isset($bodyContent['password'])) {
-            $usuario->password = Hash::make($bodyContent['password']);
+		}
+        if (isset($usuarioArray['password'])) {
+            $usuario->password = Hash::make($usuarioArray['password']);
         }        
-        $usuario->tokenReset = null;
+        $usuario->tokenReset      = null;
         $usuario->fechaTokenReset = null;
         $usuario->save();
         return response(['usuario' => $usuario]);

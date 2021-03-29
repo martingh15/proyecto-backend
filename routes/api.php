@@ -30,4 +30,5 @@ Route::group(['middleware' => 'jwt.auth','jwt.refresh'], function () {
     Route::put('/usuarios/{id}', 'UsuarioController@update');
     Route::post("/registro-admin", 'UsuarioController@registroAdmin');
     Route::get("/usuarios", 'UsuarioController@index');
+    Route::post("/usuarios/{id}", 'UsuarioController@store');
 });
