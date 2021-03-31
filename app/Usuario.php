@@ -3,8 +3,9 @@
 namespace App;
 
 use Carbon\Carbon;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * @property int $id
@@ -53,13 +54,22 @@ class Usuario extends Authenticatable
         parent::boot();
 
         static::creating(function ($usuario) {
-            $hoy = Carbon::now()->setTimezone('America/Argentina/Salta')->toDateTimeString();
-            $usuario->auditoriaCreado     = $hoy;
-            $usuario->auditoriaModificado = $hoy;
+			$hoy						  = Carbon::now()->setTimezone('America/Argentina/Salta')->toDateTimeString();
+			$logueado					  = Auth::user();
+			if (!empty($logueado)) {
+				$usuario->auditoriaCreador_id = $logueado->id;
+			}
+			$usuario->auditoriaCreado     = $hoy;
+			$usuario->auditoriaModificado = null;
         });
 		
-		static::deleting(function($usuario) {
-             $usuario->relacionRoles()->delete();
+		static::updating(function($usuario) {
+			$logueado							= Auth::user();
+            $hoy								= Carbon::now()->setTimezone('America/Argentina/Salta')->toDateTimeString();
+            $usuario->auditoriaModificado		= $hoy;
+			$usuario->auditoriaModificadoPor_id = $logueado->id;
+			\Log::info('USUARIO MODIFICADO');
+			\Log::info($usuario);
         });
     }
 

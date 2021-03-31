@@ -15,9 +15,10 @@ class CreateUsuariosTabla extends Migration
             $table->string('tokenReset', 191)->nullable();
             $table->dateTime('fechaTokenReset')->nullable();
             $table->tinyInteger('habilitado')->default(0);
+			$table->tinyInteger('borrado')->default(0);
             $table->string('password', 191);
             $table->dateTime('auditoriaCreado');
-            $table->dateTime('auditoriaModificado');
+            $table->dateTime('auditoriaModificado')->nullable();
             $table->unsignedInteger('auditoriaCreador_id')->nullable();
             $table->unsignedInteger('auditoriaModificadoPor_id')->nullable();
 
