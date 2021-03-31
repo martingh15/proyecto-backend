@@ -74,7 +74,7 @@ class LoginController extends Controller {
             //Genero token
             $datosToken = [
                 'idUsuario' => $usuario->id,
-                'esAdmin'   => $usuario->tieneRol(Rol::ROL_ADMIN),
+                'esAdmin'   => $usuario->tieneRol(Rol::ADMIN),
                 'nombre'    => $usuario->nombre . " " . $usuario->apellido
             ];
             $token = JWTAuth::fromUser($usuario, $datosToken);

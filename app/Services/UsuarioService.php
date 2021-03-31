@@ -54,9 +54,9 @@ class UsuarioService  {
             ->join("roles", "usuario_rol.idRol", "=", "roles.id")
             ->where("usuarios.borrado", 0)
 			->where(function ($query) {
-                $query->orWhere("roles.nombre", Rol::ROL_MOZO)
-                    ->orWhere("roles.nombre", Rol::ROL_VENDEDOR)
-                    ->orWhere("roles.nombre", Rol::ROL_COMENSAL);
+                $query->orWhere("roles.nombre", Rol::MOZO)
+                    ->orWhere("roles.nombre", Rol::VENDEDOR)
+                    ->orWhere("roles.nombre", Rol::COMENSAL);
             })
             ->orWhere('usuarios.id', $idLogueado)
             ->groupBy('usuarios.id')
@@ -83,7 +83,7 @@ class UsuarioService  {
 		if ($tipoRegistroAdmin) {
             $id       = Auth::user()->id;
             $logueado = Usuario::where('id', $id)->first();
-            $esAdmin  = $logueado->tieneRol(Rol::ROL_ADMIN);
+            $esAdmin  = $logueado->tieneRol(Rol::ADMIN);
 			if (!$esAdmin) {
 				return Response::json(array(
                     'code' => 500,
@@ -192,7 +192,7 @@ class UsuarioService  {
 		if ($admin) {
 			$idLogueado = Auth::user()->id;
 			$usuario	= Usuario::find($idLogueado);
-			$esAdmin	= $usuario->tieneRol(Rol::ROL_ADMIN);
+			$esAdmin	= $usuario->tieneRol(Rol::ADMIN);
 			if (!$esAdmin) {
 				 return Response::json(array(
 					'code' => 401,
@@ -253,7 +253,7 @@ class UsuarioService  {
 	 */
 	protected function agregarRol(Usuario $usuario, string $rol): Resultado {
 		$resultado = new Resultado();
-		if ($rol === Rol::ROL_ADMIN) {
+		if ($rol === Rol::ADMIN) {
 			return $resultado;
 		}
 		try {
@@ -287,7 +287,7 @@ class UsuarioService  {
 				if ($usuarioRol instanceof UsuarioRol) {
 					$rol		  = $usuarioRol->rol;
 					$nombre		  = $rol->nombre;
-					$noEsRolAdmin = $nombre !== Rol::ROL_ADMIN;
+					$noEsRolAdmin = $nombre !== Rol::ADMIN;
 					if ($noEsRolAdmin) {
 						$usuarioRol->delete();
 					}
@@ -317,28 +317,28 @@ class UsuarioService  {
 			$resultado->fusionar($borrados);
 			$esAdmin = isset($usuarioArray['esAdmin']) && $usuarioArray['esAdmin'];
 			if ($esAdmin) {
-				$adminAgregado = $this->agregarRol($usuario, Rol::ROL_ADMIN);
+				$adminAgregado = $this->agregarRol($usuario, Rol::ADMIN);
 				if ($adminAgregado->error()) {
 					$resultado->fusionar($adminAgregado);
 				}
 			};
 			$esMozo = isset($usuarioArray['esMozo']) && $usuarioArray['esMozo'];
 			if ($esMozo) {
-				$mozoAgregado = $this->agregarRol($usuario, Rol::ROL_MOZO);
+				$mozoAgregado = $this->agregarRol($usuario, Rol::MOZO);
 				if ($mozoAgregado->error()) {
 					$resultado->fusionar($mozoAgregado);
 				}
 			}
 			$esVendedor = isset($usuarioArray['esVendedor']) && $usuarioArray['esVendedor'];
 			if ($esVendedor) {
-				$vendedorAgregado = $this->agregarRol($usuario, Rol::ROL_VENDEDOR);
+				$vendedorAgregado = $this->agregarRol($usuario, Rol::VENDEDOR);
 				if ($vendedorAgregado->error()) {
 					$resultado->fusionar($vendedorAgregado);
 				}
 			}
 			$esComensal = isset($usuarioArray['esComensal']) && $usuarioArray['esComensal'];
 			if ($esComensal) {
-				$comensalAgregado = $this->agregarRol($usuario, Rol::ROL_COMENSAL);
+				$comensalAgregado = $this->agregarRol($usuario, Rol::COMENSAL);
 				if ($comensalAgregado->error()) {
 					$resultado->fusionar($comensalAgregado);
 				}
@@ -359,19 +359,19 @@ class UsuarioService  {
 	protected function setRolesUsuario(Usuario $usuario): Usuario {		
 		$roles = $usuario->roles;
 		foreach ($roles as $rol) {
-			if ($rol->nombre === Rol::ROL_ADMIN) {
+			if ($rol->nombre === Rol::ADMIN) {
 				$usuario['esAdmin'] = true;
 				continue;
 			}
-			if ($rol->nombre === Rol::ROL_MOZO) {
+			if ($rol->nombre === Rol::MOZO) {
 				$usuario['esMozo'] = true;
 				continue;
 			}
-			if ($rol->nombre === Rol::ROL_VENDEDOR) {
+			if ($rol->nombre === Rol::VENDEDOR) {
 				$usuario['esVendededor'] = true;
 				continue;
 			}
-			if ($rol->nombre === Rol::ROL_COMENSAL) {
+			if ($rol->nombre === Rol::COMENSAL) {
 				$usuario['esComensal'] = true;
 				continue;
 			}
@@ -409,21 +409,21 @@ class UsuarioService  {
             [
                 'ruta'        => '/productos/listar',
                 'icono'       => '',
-                'rol'         => Rol::ROL_ADMIN,
+                'rol'         => Rol::ADMIN,
                 'titulo'      => 'Productos',
                 'descripcion' => 'Permite gestionar los productos del sistema',
             ],
             [
                 'ruta'        => '/usuarios/listar',
                 'icono'       => '',
-                'rol'         => Rol::ROL_ADMIN,
+                'rol'         => Rol::ADMIN,
                 'titulo'      => 'Usuarios',
                 'descripcion' => 'Permite gestionar los usuarios del sistema',
             ],
             [
                 'ruta'        => '/compras',
                 'icono'       => '',
-                'rol'         => Rol::ROL_ADMIN,
+                'rol'         => Rol::ADMIN,
                 'titulo'      => 'Ingreso',
                 'descripcion' => 'Permite ingresar mercadería'
             ]
