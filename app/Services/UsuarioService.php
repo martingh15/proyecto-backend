@@ -152,12 +152,14 @@ class UsuarioService  {
 
 	// </editor-fold>
 	
+	// <editor-fold defaultstate="collapsed" desc="Borrado de usuario">
 	public function borrarUsuario(int $id): Resultado {
 		try {
 			$usuario   = $this->getUsuario($id);
 			$resultado = new Resultado();
 			if (empty($usuario)) {
 				$resultado->agregarError(Resultado::ERROR_NO_ENCONTRADO, "No se ha encontrado el usuario a borrar");
+				return $resultado;
 			}
 			$usuario->delete();
 			$resultado->agregarMensaje("El usuario se ha borrado con éxito.");
@@ -167,7 +169,8 @@ class UsuarioService  {
 		}
 		return $resultado;
 	}
-	
+	// </editor-fold>
+		
 	// <editor-fold defaultstate="collapsed" desc="Editar usuario">
 	/**
 	 * Si $admin es true verificamos que el usuario logueado sea admin ya que

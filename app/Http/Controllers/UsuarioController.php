@@ -99,7 +99,7 @@ class UsuarioController extends Controller
 			$errores = $borrado->getMensajesError();
 			return Response::json(array(
 				'code' => 500,
-				'message' => "Hubo un error al actualizar el usuario: $errores"
+				'message' => "$errores"
 			), 500);
 		}
 		$mensaje = $borrado->getMensajes();
