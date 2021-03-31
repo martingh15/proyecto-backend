@@ -60,11 +60,7 @@ class UsuarioService  {
 				$array[] = $usuario;
 			}
         }
-        $todos = array_merge($array, [$logueado]);
-        usort($todos, function($a, $b) {
-            return strcmp($a["nombre"], $b["nombre"]);
-        });
-        return $todos;
+        return $array;
     }
 	// </editor-fold>
 	
@@ -211,6 +207,7 @@ class UsuarioService  {
         $usuario->fechaTokenReset = null;
         $usuario->save();
 		$usuario = Usuario::find($idUsuario);
+		$usuario['tipoRuta'] = $admin ? 'admin' : 'comun';
         return response(['usuario' => $usuario]);
     }
 	// </editor-fold>
