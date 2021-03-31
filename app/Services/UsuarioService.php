@@ -161,7 +161,8 @@ class UsuarioService  {
 				$resultado->agregarError(Resultado::ERROR_NO_ENCONTRADO, "No se ha encontrado el usuario a borrar");
 				return $resultado;
 			}
-			$usuario->delete();
+			$usuario->borrado = 1;
+			$usuario->save();
 			$resultado->agregarMensaje("El usuario se ha borrado con éxito.");
 		} catch (Throwable $t) {
 			$resultado->agregarError(Resultado::ERROR_NO_ENCONTRADO, "Hubo un error inesperado al borrar el usuario.");
@@ -398,6 +399,13 @@ class UsuarioService  {
 	 */
     protected function getOperacionesAdmin(): array {
         return [
+            [
+                'ruta'        => '/productos/listar',
+                'icono'       => '',
+                'rol'         => Rol::ROL_ADMIN,
+                'titulo'      => 'Productos',
+                'descripcion' => 'Permite gestionar los productos del sistema',
+            ],
             [
                 'ruta'        => '/usuarios/listar',
                 'icono'       => '',
