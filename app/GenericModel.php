@@ -2,7 +2,6 @@
 
 namespace App;
 
-use App\Exceptions\BusinessException;
 use Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
@@ -45,17 +44,22 @@ class GenericModel extends Model {
         return true;
     }
 
-    public function errors()
-    {
+    public function errors() {
         return $this->errors;
     }
 
-    public static function boot()
-    {
+    public static function boot() {
+		
         parent::boot();
 
         self::creating(function ($model) {
-            // ... code here
+            $hoy	  = Carbon::now()->setTimezone('America/Argentina/Salta')->toDateTimeString();
+			$logueado = Auth::user();
+			if (!empty($logueado)) {
+				$model->auditoriaCreador_id = $logueado->id;
+			}
+			$model->auditoriaCreado     = $hoy;
+			$model->auditoriaModificado = null;
         });
 
         self::created(function ($model) {
@@ -63,38 +67,14 @@ class GenericModel extends Model {
         });
 
         self::saving(function ($model) {
-
-            //Validacion eloquent
-            if (!$model->validate(json_decode($model, true))) {
-                $errors = $model->errors();
-                \Log::info("error");
-                \Log::info($errors);
-                throw new BusinessException($errors);
-            }
-
-            //fechaUltMdf
-            $model->fechaUltMdf = (new \DateTime())->setTimezone(new \DateTimeZone("America/Argentina/Buenos_Aires"));
-
-            //estado
-            if ($model->estado===null){
-                $model->estado = true;
-            }
-
-            //usuario ultima modificación
-            if(empty($model->idUsuarioUltMdf) && empty($model->usuarioUltMdf)) {
-                if (!empty(Auth::user())) {
-                    $model->usuarioUltMdf = Auth::user()->nombre . " " . Auth::user()->apellido;
-                    $model->idUsuarioUltMdf = Auth::user()->id;
-                } else {
-                    $model->usuarioUltMdf = "Administrador del Sistema";
-                    $model->idUsuarioUltMdf = 0;
-                }
-            }
-
+			// ... code here
         });
 
         self::updating(function ($model) {
-            // ... code here
+			$logueado						  = Auth::user();
+			$hoy							  = Carbon::now()->setTimezone('America/Argentina/Salta')->toDateTimeString();
+			$model->auditoriaModificado		  = $hoy;
+			$model->auditoriaModificadoPor_id = $logueado->id;
         });
 
         self::updated(function ($model) {

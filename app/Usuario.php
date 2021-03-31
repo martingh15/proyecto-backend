@@ -111,7 +111,7 @@ class Usuario extends Authenticatable
      */
     public function getEsAdminAttribute()
     {
-        return $this->tieneRol(Rol::ROL_ADMIN);
+        return $this->tieneRol(Rol::ADMIN);
 	}
 	
 	/**
@@ -121,7 +121,7 @@ class Usuario extends Authenticatable
      */
     public function getEsMozoAttribute()
     {
-        return $this->tieneRol(Rol::ROL_MOZO);
+        return $this->tieneRol(Rol::MOZO);
     }
 	
 	/**
@@ -131,7 +131,7 @@ class Usuario extends Authenticatable
      */
     public function getEsVendedorAttribute()
     {
-        return $this->tieneRol(Rol::ROL_VENDEDOR);
+        return $this->tieneRol(Rol::VENDEDOR);
     }
 	
 	/**
@@ -141,7 +141,7 @@ class Usuario extends Authenticatable
      */
     public function getEsComensalAttribute()
     {
-        return $this->tieneRol(Rol::ROL_COMENSAL);
+        return $this->tieneRol(Rol::COMENSAL);
     }
 	
 	public function __toString() {

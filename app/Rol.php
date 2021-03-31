@@ -6,18 +6,18 @@ use Illuminate\Database\Eloquent\Model;
 
 class Rol extends Model {
 
-    const ROL_ROOT     = 'root';
-    const ROL_ADMIN    = 'admin';
-    const ROL_MOZO     = 'mozo';
-    const ROL_COMENSAL = 'comensal';
-    const ROL_VENDEDOR = 'vendedor';
+    const ROOT     = 'root';
+    const ADMIN    = 'admin';
+    const MOZO     = 'mozo';
+    const COMENSAL = 'comensal';
+    const VENDEDOR = 'vendedor';
 
     const ROLES = [
-        self::ROL_ROOT,
-        self::ROL_ADMIN,
-        self::ROL_MOZO,
-        self::ROL_COMENSAL,
-        self::ROL_VENDEDOR
+        self::ROOT,
+        self::ADMIN,
+        self::MOZO,
+        self::COMENSAL,
+        self::VENDEDOR
     ];
 
     protected $table = "roles";
