@@ -152,6 +152,7 @@ class UsuarioService  {
 
 	// </editor-fold>
 	
+	// <editor-fold defaultstate="collapsed" desc="Borrado de usuario">
 	public function borrarUsuario(int $id): Resultado {
 		try {
 			$usuario   = $this->getUsuario($id);
@@ -168,7 +169,8 @@ class UsuarioService  {
 		}
 		return $resultado;
 	}
-	
+	// </editor-fold>
+		
 	// <editor-fold defaultstate="collapsed" desc="Editar usuario">
 	/**
 	 * Si $admin es true verificamos que el usuario logueado sea admin ya que
