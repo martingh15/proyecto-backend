@@ -21,7 +21,6 @@ class UsuarioService  {
     // <editor-fold defaultstate="collapsed" desc="Búsquedas">
 	public function getUsuario(int $id): ?Usuario {
 		$usuario = Usuario::where('id', $id)->first();
-		\Log::info($usuario);
         return $usuario;
     }
 	
@@ -41,15 +40,16 @@ class UsuarioService  {
     }
 	
 	public function getUsuarios(): array {
-        $logueado = $this->getUsuarioLogueado(false);
+        $idLogueado = Auth::user()->id;
         $usuarios = DB::table('usuarios')->selectRaw('usuarios.id')
             ->join("usuario_rol", "usuarios.id", "=", "usuario_rol.idUsuario")
             ->join("roles", "usuario_rol.idRol", "=", "roles.id")
             ->where(function ($query) {
                 $query->orWhere("roles.nombre", Rol::ROL_MOZO)
-                    ->orWhere("roles.nombre", Rol::ROL_VENDEDOR);
+                    ->orWhere("roles.nombre", Rol::ROL_VENDEDOR)
+                    ->orWhere("roles.nombre", Rol::ROL_COMENSAL);
             })
-            ->where('usuarios.id', '<>', $logueado->id)
+            ->orWhere('usuarios.id', $idLogueado)
             ->groupBy('usuarios.id')
             ->orderByRaw('usuarios.nombre ASC')->get();
         $array = [];
@@ -185,13 +185,15 @@ class UsuarioService  {
                 'message' => "Usuario no encontrado, ingresen nuevamente"
             ), 401);
 		}
-		$resultado = $this->agregarRolesUsuario($usuario, $usuarioArray, $admin);
-		if ($resultado->error()) {
-			$errores = $resultado->getMensajesError();
-			return Response::json(array(
-				'code' => 500,
-				'message' => "Hubo un error al actualizar el usuario: $errores"
-			), 500);
+		if ($admin) {
+			$resultado = $this->agregarRolesUsuario($usuario, $usuarioArray, $admin);
+			if ($resultado->error()) {
+				$errores = $resultado->getMensajesError();
+				return Response::json(array(
+					'code' => 500,
+					'message' => "Hubo un error al actualizar el usuario: $errores"
+				), 500);
+			}
 		}
 		if (isset($usuarioArray['dni'])) {
 			$dni		  = (int) $usuarioArray['dni'];
@@ -222,6 +224,9 @@ class UsuarioService  {
 	 */
 	protected function agregarRol(Usuario $usuario, string $rol): Resultado {
 		$resultado = new Resultado();
+		if ($rol === Rol::ROL_ADMIN) {
+			return $resultado;
+		}
 		try {
 			$rol   = Rol::where('nombre', $rol)->first();
 			$idRol = $rol->id;
@@ -246,12 +251,17 @@ class UsuarioService  {
 		$roles	   = $usuario->roles;
 		$resultado = new Resultado();
 		foreach ($roles as $rol) {
-			$idRol     = $rol->id;
-			$idUsuario = $usuario->id;
+			$idRol		  = $rol->id;
+			$idUsuario	  = $usuario->id;
 			$usuarioRoles = UsuarioRol::where([['idRol', $idRol], ['idUsuario', $idUsuario]])->get();
 			foreach ($usuarioRoles as $usuarioRol) {
 				if ($usuarioRol instanceof UsuarioRol) {
-					$usuarioRol->delete();
+					$rol		  = $usuarioRol->rol;
+					$nombre		  = $rol->nombre;
+					$noEsRolAdmin = $nombre !== Rol::ROL_ADMIN;
+					if ($noEsRolAdmin) {
+						$usuarioRol->delete();
+					}
 				} else {
 					$resultado->agregarError(Resultado::ERROR_GENERICO, "No se ha podido borrar el rol $rol");
 				}
