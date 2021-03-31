@@ -36,4 +36,8 @@ class Rol extends Model {
     {
         return $this->belongsToMany(Usuario::class, 'usuario_rol', 'idUsuario');
     }
+	
+	public function __toString() {
+		return $this->legible;
+	}
 }

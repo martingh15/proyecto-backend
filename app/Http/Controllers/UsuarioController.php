@@ -80,6 +80,16 @@ class UsuarioController extends Controller
         $servicio = $this->getUsuarioService();
         return $servicio->getUsuarioLogueado();
     }
+	
+	public function buscar(Request $request, int $id) {
+		if ($id <= 0) {
+			return response()->json([
+				'message' => 'El id el usuario a buscar es inválido.',
+			], 500);
+		}
+		$servicio = $this->getUsuarioService();
+        return $servicio->getUsuario($id);
+	}
 
     /**
      * @return UsuarioService

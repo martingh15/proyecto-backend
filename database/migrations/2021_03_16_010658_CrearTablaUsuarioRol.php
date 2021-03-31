@@ -14,7 +14,8 @@ class CrearTablaUsuarioRol extends Migration
     public function up()
     {
         Schema::create('usuario_rol', function (Blueprint $table) {
-            $table->unsignedInteger('idRol');
+            $table->increments('id');
+			$table->unsignedInteger('idRol');
             $table->unsignedInteger('idUsuario');
 
             $table->foreign('idRol')->references('id')->on('roles');

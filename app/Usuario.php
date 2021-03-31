@@ -90,7 +90,17 @@ class Usuario extends Authenticatable
     public function getEsAdminAttribute()
     {
         return $this->tieneRol(Rol::ROL_ADMIN);
-    }
+	}
+	
+	/**
+     * Indica si el usuario es administrador
+	 * 
+     * @return bool
+     */
+    public function getEsAdminOriginalAttribute()
+    {
+        return $this->getEsAdminAttribute();
+	}
 	
 	/**
      * Indica si el usuario es mozo
@@ -111,4 +121,8 @@ class Usuario extends Authenticatable
     {
         return $this->tieneRol(Rol::ROL_VENDEDOR);
     }
+	
+	public function __toString() {
+		return $this->nombre;
+	}
 }

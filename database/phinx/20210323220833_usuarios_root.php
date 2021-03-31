@@ -10,27 +10,32 @@ final class UsuariosRoot extends AbstractMigration
         $this->execute("INSERT INTO usuarios VALUES (default, 'Martín', 'martinghiotti2013@gmail.com', null, null, null, 1, '$10$0hakHJWsP2G1aMeqJj0NHumx9rZyMPlDSUqBLt5r6rA2yJjDQZujO', '$hoy', '$hoy', null, null);");
         $this->execute("INSERT INTO usuarios VALUES (default, 'Bernardo', 'bernardopolidoro@gmail.com', null, null, null, 1, '$10$0hakHJWsP2G1aMeqJj0NHumx9rZyMPlDSUqBLt5r6rA2yJjDQZujO', '$hoy', '$hoy', null, null);");
         $this->execute("INSERT INTO usuarios VALUES (default, 'Administrador', 'administrador@gmail.com', null, null, null, 1, '$10$0hakHJWsP2G1aMeqJj0NHumx9rZyMPlDSUqBLt5r6rA2yJjDQZujO', '$hoy', '$hoy', null, null);");
-        $this->execute("INSERT INTO `proyecto`.`usuario_rol` VALUES (
+        $this->execute("INSERT INTO usuario_rol VALUES (
+				default,
                 (SELECT id FROM roles WHERE nombre = 'root'),
                 (SELECT id FROM usuarios WHERE nombre = 'Martín')
             )
         ");
-        $this->execute("INSERT INTO `proyecto`.`usuario_rol` VALUES (
+        $this->execute("INSERT INTO usuario_rol VALUES (
+				default,
                 (SELECT id FROM roles WHERE nombre = 'admin'),
                 (SELECT id FROM usuarios WHERE nombre = 'Martín')
             )
         ");
-        $this->execute("INSERT INTO `proyecto`.`usuario_rol` VALUES (
+        $this->execute("INSERT INTO usuario_rol VALUES (
+				default,
                 (SELECT id FROM roles WHERE nombre = 'root'),
                 (SELECT id FROM usuarios WHERE nombre = 'Bernardo')
             )
         ");
-        $this->execute("INSERT INTO `proyecto`.`usuario_rol` VALUES (
+        $this->execute("INSERT INTO usuario_rol VALUES (
+				default,
                 (SELECT id FROM roles WHERE nombre = 'admin'),
                 (SELECT id FROM usuarios WHERE nombre = 'Bernardo')
             )
         ");
-        $this->execute("INSERT INTO `proyecto`.`usuario_rol` VALUES (
+        $this->execute("INSERT INTO usuario_rol VALUES (
+				default,
                 (SELECT id FROM roles WHERE nombre = 'admin'),
                 (SELECT id FROM usuarios WHERE nombre = 'Administrador')
             )
