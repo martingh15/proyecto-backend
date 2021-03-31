@@ -2,6 +2,9 @@
 
 namespace App\Resultado;
 
+use Exception;
+use Throwable;
+
 /**
  * Representa el resultado de una operación. Ideal para procesos que deben
  * validar varias condiciones y pueden mostrar más de un mensaje de error.
@@ -33,8 +36,8 @@ class Resultado {
 	const ERROR_NO_ENCONTRADO = 'no-encontrado';
 
 	protected $resultado;
-	protected $mensajes = [];
-	protected $errores = [];
+	protected $mensajes	   = [];
+	protected $errores	   = [];
 	protected $excepciones = [];
 
 	/**
@@ -45,10 +48,11 @@ class Resultado {
 	 * un controlador podría ver cierto código y mostrar un mensaje diferente
 	 * al que mostraría otro controlador bajo otro contexto.
 	 *
+	 * @param string $codigo
 	 * @param string $mensaje
 	 * @return Resultado
 	 */
-	public function agregarError($codigo, $mensaje) {
+	public function agregarError(string $codigo, string $mensaje): Resultado {
 		$this->errores[] = new Error($codigo, $mensaje);
 		return $this;
 	}
@@ -62,7 +66,7 @@ class Resultado {
 	 * @param string $mensaje
 	 * @return Resultado
 	 */
-	public function agregarMensaje($mensaje) {
+	public function agregarMensaje(string $mensaje): Resultado {
 		$this->mensajes[] = $mensaje;
 		return $this;
 	}
@@ -76,7 +80,7 @@ class Resultado {
 	 * @param array $mensajes
 	 * @return Resultado
 	 */
-	public function agregarMensajes(array $mensajes) {
+	public function agregarMensajes(array $mensajes): Resultado {
 		$this->mensajes = array_merge($this->mensajes, $mensajes);
 		return $this;
 	}
@@ -88,7 +92,7 @@ class Resultado {
 	 * @param string $excepcion
 	 * @return Resultado
 	 */
-	public function agregarExcepcion($excepcion) {
+	public function agregarExcepcion($excepcion): Resultado {
 		$this->excepciones[] = $excepcion;
 		return $this;
 	}
@@ -100,7 +104,7 @@ class Resultado {
 	 * @param array $excepciones
 	 * @return Resultado
 	 */
-	public function agregarExcepciones(array $excepciones) {
+	public function agregarExcepciones(array $excepciones): Resultado {
 		$this->mensajes = array_merge($this->excepciones, $excepciones);
 		return $this;
 	}
@@ -115,7 +119,7 @@ class Resultado {
 	 * @param Resultado $resultado
 	 * @return Resultado
 	 */
-	public function fusionar(Resultado $resultado) {
+	public function fusionar(Resultado $resultado): Resultado {
 		$errores	 = $resultado->getErrores();
 		$mensajes	 = $resultado->getMensajesArray();
 		$excepciones = $resultado->getMensajesArray();
@@ -132,7 +136,7 @@ class Resultado {
 	 *
 	 * @return bool
 	 */
-	public function exito() {
+	public function exito(): bool {
 		return empty($this->errores);
 	}
 
@@ -141,7 +145,7 @@ class Resultado {
 	 *
 	 * @return bool
 	 */
-	public function error() {
+	public function error(): bool {
 		return !empty($this->errores);
 	}
 
@@ -162,7 +166,7 @@ class Resultado {
 	 *
 	 * @return array
 	 */
-	public function getCodigosError() {
+	public function getCodigosError(): array {
 		/* @var $error Error */
 		$salida  = [];
 		$errores = $this->getErrores();
@@ -178,7 +182,7 @@ class Resultado {
 	 * @param string $separador
 	 * @return string
 	 */
-	public function getMensajesError($separador = PHP_EOL) {
+	public function getMensajesError($separador = PHP_EOL): string {
 		/* @var $error Error */
 		$salida  = [];
 		$errores = $this->getErrores();
@@ -197,7 +201,7 @@ class Resultado {
 	 * @param string $separador
 	 * @return array
 	 */
-	public function getMensajesErrorArray() {
+	public function getMensajesErrorArray(): array {
 		/* @var $error Error */
 		$salida  = [];
 		$errores = $this->getErrores();
@@ -227,7 +231,7 @@ class Resultado {
 	 *
 	 * @return array
 	 */
-	public function getMensajesArray() {
+	public function getMensajesArray(): array {
 		return $this->mensajes;
 	}
 
@@ -240,7 +244,7 @@ class Resultado {
 	 * @param string $separador
 	 * @return string
 	 */
-	public function getMensajes($separador = PHP_EOL) {
+	public function getMensajes($separador = PHP_EOL): string {
 		return implode($separador, $this->mensajes);
 	}
 
@@ -249,7 +253,7 @@ class Resultado {
 	 *
 	 * @return array
 	 */
-	public function getExcepciones() {
+	public function getExcepciones() : array {
 		return $this->excepciones;
 	}
 
@@ -269,10 +273,9 @@ class Resultado {
 	 * @param mixed $resultado
 	 * @return $this
 	 */
-	public function setResultado($resultado) {
+	public function setResultado($resultado): Resultado {
 		$this->resultado = $resultado;
 		return $this;
 	}
 
 }
-

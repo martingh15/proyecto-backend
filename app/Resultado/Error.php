@@ -1,6 +1,6 @@
 <?php
 
-namespace Base\Model;
+namespace App\Resultado;
 
 /**
  * Para uso interno de la clase Resultado.
@@ -12,25 +12,25 @@ class Error {
 	protected $codigo;
 	protected $mensaje;
 
-	public function __construct($codigo, $mensaje) {
+	public function __construct(string $codigo, string $mensaje) {
 		$this->codigo	 = $codigo;
 		$this->mensaje	 = $mensaje;
 	}
 
-	public function getCodigo() {
+	public function getCodigo(): string {
 		return $this->codigo;
 	}
 
-	public function getMensaje() {
+	public function getMensaje(): string {
 		return $this->mensaje;
 	}
 
-	public function setCodigo($codigo) {
+	public function setCodigo(string $codigo) {
 		$this->codigo = $codigo;
 		return $this;
 	}
 
-	public function setMensaje($mensaje) {
+	public function setMensaje(string $mensaje) {
 		$this->mensaje = $mensaje;
 		return $this;
 	}
