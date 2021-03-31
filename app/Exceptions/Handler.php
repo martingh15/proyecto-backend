@@ -64,16 +64,11 @@ class Handler extends ExceptionHandler
         \Log::info($exception->getMessage());
 
         switch ($exception->getMessage()) {
-            case "ESTADOPEDIDOREPETIDO":
-                return Response::json(array(
-                    'code' => 500,
-                    'message' => "El pedido ya está en el estado seleccionado."
-                ), 500);
-                break;
             default:
-                return response()->json(
-                    ['message' => "Ocurrió un error inesperado. Intentelo nuevamente. Si el problema persiste comuníquese con el administrador."]
-                    , 500);
+                return response()->json([
+					'message' => "Ocurrió un error inesperado. Intentelo nuevamente. Si el problema persiste comuníquese con el administrador.",
+					'error'	  => (string) $exception
+				], 500);
         }
     }
 
