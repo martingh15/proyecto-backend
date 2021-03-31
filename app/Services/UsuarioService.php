@@ -409,8 +409,8 @@ class UsuarioService  {
                 'ruta'        => '/compras',
                 'icono'       => '',
                 'rol'         => Rol::ROL_ADMIN,
-                'titulo'      => 'Compras',
-                'descripcion' => 'Permite gestionar las compras'
+                'titulo'      => 'Ingreso',
+                'descripcion' => 'Permite ingresar mercadería'
             ]
         ];
     }
