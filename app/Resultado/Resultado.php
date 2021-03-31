@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Resultado;
 
 /**
  * Representa el resultado de una operación. Ideal para procesos que deben

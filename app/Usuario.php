@@ -52,10 +52,14 @@ class Usuario extends Authenticatable
 
         parent::boot();
 
-        static::creating(function ($user) {
+        static::creating(function ($usuario) {
             $hoy = Carbon::now()->setTimezone('America/Argentina/Salta')->toDateTimeString();
-            $user->auditoriaCreado     = $hoy;
-            $user->auditoriaModificado = $hoy;
+            $usuario->auditoriaCreado     = $hoy;
+            $usuario->auditoriaModificado = $hoy;
+        });
+		
+		static::deleting(function($usuario) {
+             $usuario->relacionRoles()->delete();
         });
     }
 
@@ -65,6 +69,14 @@ class Usuario extends Authenticatable
     public function roles()
     {
         return $this->belongsToMany(Rol::class, 'usuario_rol', 'idUsuario', 'idRol');
+    }
+   
+	/**
+     *  
+     */
+    public function relacionRoles()
+    {
+        return $this->hasMany(UsuarioRol::class, 'idUsuario');
     }
 
     public function tieneRol(string $nombre, bool $esAdmin = false): bool {

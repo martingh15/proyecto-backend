@@ -4,6 +4,7 @@
 namespace App\Services;
 
 use App\Mail\ValidarEmail;
+use App\Resultado\Resultado;
 use App\Rol;
 use App\Usuario;
 use App\UsuarioRol;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Str;
+use Throwable;
 
 class UsuarioService  {
 
@@ -149,6 +151,22 @@ class UsuarioService  {
 	}
 
 	// </editor-fold>
+	
+	public function borrarUsuario(int $id): Resultado {
+		try {
+			$usuario   = $this->getUsuario($id);
+			$resultado = new Resultado();
+			if (empty($usuario)) {
+				$resultado->agregarError(Resultado::ERROR_NO_ENCONTRADO, "No se ha encontrado el usuario a borrar");
+			}
+			$usuario->delete();
+			$resultado->agregarMensaje("El usuario se ha borrado con éxito.");
+		} catch (Throwable $t) {
+			$resultado->agregarError(Resultado::ERROR_NO_ENCONTRADO, "Hubo un error inesperado al borrar el usuario.");
+			\Log::info("Hubo un error al borrar el usuario: " . (string) $t);
+		}
+		return $resultado;
+	}
 	
 	// <editor-fold defaultstate="collapsed" desc="Editar usuario">
 	/**

@@ -32,4 +32,5 @@ Route::group(['middleware' => 'jwt.auth','jwt.refresh'], function () {
     Route::get("/usuarios", 'UsuarioController@index');
     Route::post("/usuarios/{id}", 'UsuarioController@store');
 	Route::get("/usuario/{id}", 'UsuarioController@buscar');
+	Route::delete("/usuario/{id}", 'UsuarioController@destroy');
 });

@@ -81,6 +81,35 @@ class UsuarioController extends Controller
         return $servicio->getUsuarioLogueado();
     }
 	
+	public function destroy(Request $request, int $id) {
+		$idUsuario = Auth::user()->id;
+		if ($id <= 0) {
+			return response()->json([
+				'message' => 'El id el usuario a buscar es inválido.',
+			], 500);
+		}
+		if (intval($idUsuario) === $id) {
+			return response()->json([
+				'message' => 'No es posible borrar el usuario logueado.',
+			], 500);
+		}
+		$servicio = $this->getUsuarioService();
+        $borrado  = $servicio->borrarUsuario($id);
+		if ($borrado->error()) {
+			$errores = $borrado->getMensajesError();
+			return Response::json(array(
+				'code' => 500,
+				'message' => "Hubo un error al actualizar el usuario: $errores"
+			), 500);
+		}
+		$mensaje = $borrado->getMensajes();
+		return Response::json(array(
+			'code'	  => 200,
+			'message' => $mensaje,
+			'usuario' => $id
+		), 200);
+	}
+	
 	public function buscar(Request $request, int $id) {
 		if ($id <= 0) {
 			return response()->json([
