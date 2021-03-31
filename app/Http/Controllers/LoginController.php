@@ -54,6 +54,12 @@ class LoginController extends Controller {
                     'message' => "Su usuario no ha sido habilitado aún. Aguarde la habilitación o contáctese con nosotros."
                 ), 500);
             }
+            if ($usuario->borrado) {
+                return Response::json(array(
+                    'code' => 500,
+                    'message' => "El usuario ha sido borrado, si desea recuperarlo contacte al administrador."
+                ), 500);
+            }
             if ($credentials['forzado'] === "" && !Hash::check($credentials['password'], $usuario->password)) {
                 return Response::json(array(
                     'code' => 500,

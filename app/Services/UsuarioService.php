@@ -22,17 +22,23 @@ class UsuarioService  {
 
     // <editor-fold defaultstate="collapsed" desc="Búsquedas">
 	public function getUsuario(int $id): ?Usuario {
-		$usuario = Usuario::where('id', $id)->first();
+		$usuario = Usuario::where([['id', $id], ['borrado', 0]])->first();
         return $usuario;
     }
 	
+	/**
+	 * Busca usuarios por email. Sin importar si la propiedad borrado es true
+	 * 
+	 * @param string $email
+	 * @return Usuario|null
+	 */
     public function getUsuarioPorEmail(string $email): ?Usuario {
-        return Usuario::where('email', $email)->first();
+        return Usuario::where([['email', $email]])->first();
     }
 	
 	public function getUsuarioLogueado(bool $conOperaciones = true) {
         $idUsuario = Auth::user()->id;
-        $usuario   = Usuario::where('id', $idUsuario)->with('roles')->first();
+        $usuario   = Usuario::where([['id', $idUsuario], ['borrado', 0]])->with('roles')->first();
         if ($conOperaciones) {
             $usuario['operaciones'] = $this->getOperacionesUsuario($usuario);
         }
@@ -46,7 +52,8 @@ class UsuarioService  {
         $usuarios = DB::table('usuarios')->selectRaw('usuarios.id')
             ->join("usuario_rol", "usuarios.id", "=", "usuario_rol.idUsuario")
             ->join("roles", "usuario_rol.idRol", "=", "roles.id")
-            ->where(function ($query) {
+            ->where("usuarios.borrado", 0)
+			->where(function ($query) {
                 $query->orWhere("roles.nombre", Rol::ROL_MOZO)
                     ->orWhere("roles.nombre", Rol::ROL_VENDEDOR)
                     ->orWhere("roles.nombre", Rol::ROL_COMENSAL);
