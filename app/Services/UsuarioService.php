@@ -158,6 +158,7 @@ class UsuarioService  {
 			$resultado = new Resultado();
 			if (empty($usuario)) {
 				$resultado->agregarError(Resultado::ERROR_NO_ENCONTRADO, "No se ha encontrado el usuario a borrar");
+				return $resultado;
 			}
 			$usuario->delete();
 			$resultado->agregarMensaje("El usuario se ha borrado con éxito.");
