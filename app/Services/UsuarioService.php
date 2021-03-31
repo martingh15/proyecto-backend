@@ -20,7 +20,9 @@ class UsuarioService  {
 
     // <editor-fold defaultstate="collapsed" desc="Búsquedas">
 	public function getUsuario(int $id): ?Usuario {
-        return Usuario::where('id', $id)->first();
+		$usuario = Usuario::where('id', $id)->first();
+		\Log::info($usuario);
+        return $usuario;
     }
 	
     public function getUsuarioPorEmail(string $email): ?Usuario {
@@ -195,8 +197,9 @@ class UsuarioService  {
 				'message' => "Hubo un error al actualizar el usuario: $errores"
 			), 500);
 		}
-		if (isset($usuarioArray['dni']) && is_numeric($usuarioArray['dni'])) {
-			$usuario->dni = $usuarioArray['dni'];
+		if (isset($usuarioArray['dni'])) {
+			$dni		  = (int) $usuarioArray['dni'];
+			$usuario->dni = $dni > 0 ? $dni : null;
 		}
 		if (isset($usuarioArray['nombre']) && is_string($usuarioArray['nombre'])) {
 			$usuario->nombre = $usuarioArray['nombre'];
@@ -230,8 +233,6 @@ class UsuarioService  {
 			$usuarioRol->idRol		 = $idRol;
 			$usuarioRol->idUsuario	 = $usuario->id;
 			$usuarioRol->save();
-			$legible = $rol->legible;
-			\Log::info("Agregado rol '$legible'");
 		} catch (Throwable $t) {
 			$resultado->agregarError(Resultado::ERROR_GENERICO, "Hubo un error al agregar el rol $rol.");
 		}
@@ -254,8 +255,6 @@ class UsuarioService  {
 			foreach ($usuarioRoles as $usuarioRol) {
 				if ($usuarioRol instanceof UsuarioRol) {
 					$usuarioRol->delete();
-					$legible = $rol->legible;
-					\Log::info("Borrado rol '$legible'");
 				} else {
 					$resultado->agregarError(Resultado::ERROR_GENERICO, "No se ha podido borrar el rol $rol");
 				}
@@ -280,39 +279,29 @@ class UsuarioService  {
 				return $borrados;
 			}
 			$resultado->fusionar($borrados);
-			if ($tipoRegistroAdmin) {
-				$esAdmin = isset($usuarioArray['esAdmin']) && $usuarioArray['esAdmin'];
-				if ($esAdmin) {
-					$adminAgregado = $this->agregarRol($usuario, Rol::ROL_ADMIN);
-					if ($adminAgregado->error()) {
-						$resultado->fusionar($adminAgregado);
-					}
-				};
-				$esMozo = isset($usuarioArray['esMozo']) && $usuarioArray['esMozo'];
-				if ($esMozo) {
-					$mozoAgregado = $this->agregarRol($usuario, Rol::ROL_MOZO);
-					if ($mozoAgregado->error()) {
-						$resultado->fusionar($mozoAgregado);
-					}
+			$esAdmin = isset($usuarioArray['esAdmin']) && $usuarioArray['esAdmin'];
+			if ($esAdmin) {
+				$adminAgregado = $this->agregarRol($usuario, Rol::ROL_ADMIN);
+				if ($adminAgregado->error()) {
+					$resultado->fusionar($adminAgregado);
 				}
-				$esVendedor = isset($usuarioArray['esVendedor']) && $usuarioArray['esVendedor'];
-				if ($esVendedor) {
-					$vendedorAgregado = $this->agregarRol($usuario, Rol::ROL_VENDEDOR);
-					if ($vendedorAgregado->error()) {
-						$resultado->fusionar($vendedorAgregado);
-					}
+			};
+			$esMozo = isset($usuarioArray['esMozo']) && $usuarioArray['esMozo'];
+			if ($esMozo) {
+				$mozoAgregado = $this->agregarRol($usuario, Rol::ROL_MOZO);
+				if ($mozoAgregado->error()) {
+					$resultado->fusionar($mozoAgregado);
 				}
-				if (!$esAdmin && !$esMozo && !$esVendedor) {
-					$comensalAgregado = $this->agregarRol($usuario, Rol::ROL_COMENSAL);
-					if ($comensalAgregado->error()) {
-						$resultado->fusionar($comensalAgregado);
-					}
+			}
+			$esVendedor = isset($usuarioArray['esVendedor']) && $usuarioArray['esVendedor'];
+			if ($esVendedor) {
+				$vendedorAgregado = $this->agregarRol($usuario, Rol::ROL_VENDEDOR);
+				if ($vendedorAgregado->error()) {
+					$resultado->fusionar($vendedorAgregado);
 				}
-			} else {
-				$tieneRolComensal = $usuario->tieneRol(Rol::ROL_COMENSAL);
-				if ($tieneRolComensal) {
-					return $resultado;
-				}
+			}
+			$esComensal = isset($usuarioArray['esComensal']) && $usuarioArray['esComensal'];
+			if ($esComensal) {
 				$comensalAgregado = $this->agregarRol($usuario, Rol::ROL_COMENSAL);
 				if ($comensalAgregado->error()) {
 					$resultado->fusionar($comensalAgregado);

@@ -40,7 +40,7 @@ class Usuario extends Authenticatable
         'password'
     ];
 
-	protected $appends = [ 'esAdmin', 'esMozo', 'esVendedor' ];
+	protected $appends = [ 'esAdmin', 'esMozo', 'esVendedor', 'esComensal' ];
 	
     /**
      * The "booted" method of the model.
@@ -93,16 +93,6 @@ class Usuario extends Authenticatable
 	}
 	
 	/**
-     * Indica si el usuario es administrador
-	 * 
-     * @return bool
-     */
-    public function getEsAdminOriginalAttribute()
-    {
-        return $this->getEsAdminAttribute();
-	}
-	
-	/**
      * Indica si el usuario es mozo
 	 * 
      * @return bool
@@ -120,6 +110,16 @@ class Usuario extends Authenticatable
     public function getEsVendedorAttribute()
     {
         return $this->tieneRol(Rol::ROL_VENDEDOR);
+    }
+	
+	/**
+     * Indica si el usuario es comensal
+	 * 
+     * @return bool
+     */
+    public function getEsComensalAttribute()
+    {
+        return $this->tieneRol(Rol::ROL_COMENSAL);
     }
 	
 	public function __toString() {
