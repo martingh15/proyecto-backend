@@ -105,7 +105,7 @@ class ProductoService  {
 
 			//nombre de la imagen con idUnico-idGremio, obtengo la extension original del archivo
 			$fileName = "$producto->id-" . uniqid() . "." . $imagen->getClientOriginalExtension();
-			$carpeta  = public_path() . '/img/animales/' . $fileName;
+			$carpeta  = public_path() . '/img/productos/' . $fileName;
 			$img	  = Image::make($imagen);
 
 			//Altura de la imagen a redimensionar en px
