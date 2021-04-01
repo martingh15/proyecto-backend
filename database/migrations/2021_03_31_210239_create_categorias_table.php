@@ -15,12 +15,11 @@ class CreateCategoriasTable extends Migration
     {
          Schema::create('producto_categorias', function (Blueprint $table) {
             $table->increments('id');
+			$table->unsignedInteger('superior_id')->nullable();
 			$table->string('codigo');
 			$table->string('nombre');
 			$table->string('orden');
 			$table->tinyInteger('habilitado')->default(1);
-			
-			$table->unsignedInteger('superior_id')->nullable();
 			
 			$table->dateTime('auditoriaCreado');
             $table->dateTime('auditoriaModificado')->nullable();
