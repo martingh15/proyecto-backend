@@ -1,4 +1,5 @@
 /nbproject/private/
 .env
 /vendor
-/public/.htaccess
+/public
+/.idea
