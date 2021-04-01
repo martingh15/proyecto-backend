@@ -65,7 +65,8 @@ class ProductoService  {
 			if ($resultado->error()) {
 				return $resultado;
 			}
-			$producto->save();
+			$nuevo = $resultado->getResultado();
+			$nuevo->save();
 			DB::commit();
 		} catch (Throwable $t) {
 			$resultado->agregarError(Resultado::ERROR_GENERICO, "Ha ocurrido un error al guardar el producto.");
@@ -119,8 +120,8 @@ class ProductoService  {
 			//Guardo la imagen
 			$producto->imagen	  = $fileName;
 			$producto->fileImagen = $imagen->getClientOriginalName();
-			$producto->save();
 			$img->save($carpeta);
+			$resultado->setResultado($producto);
 		} catch (Throwable $exception) {
 			$resultado->agregarError(Resultado::ERROR_GUARDADO, "Hubo un error al guardar la imagen.");
 			\Log::info($exception);
