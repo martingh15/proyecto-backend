@@ -5,9 +5,9 @@ namespace App\Services;
 
 use App\Mail\ValidarEmail;
 use App\Resultado\Resultado;
-use App\Rol;
+use App\Modelo\Rol;
 use App\Usuario;
-use App\UsuarioRol;
+use App\Modelo\UsuarioRol;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;

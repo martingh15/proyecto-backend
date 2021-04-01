@@ -3,19 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Mail\OlvidePassword;
-use App\Rol;
+use App\Modelo\Rol;
 use App\Services\UsuarioService;
+use App\Usuario;
+use Carbon\Carbon;
+use DateInterval;
+use DateTime;
+use DateTimeZone;
 use Exception;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Usuario;
+use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Str;
 use JWTAuth;
-use Illuminate\Support\Facades\Response;
-use Illuminate\Http\Response as HttpResponse;
 
 class LoginController extends Controller {
 
@@ -105,8 +109,8 @@ class LoginController extends Controller {
 
         //Genero token
         $tokenReset = Str::random(64);
-        $fechaExpiraToken = (new \DateTime())->setTimezone(new \DateTimeZone("America/Argentina/Buenos_Aires"));
-        $fechaExpiraToken->add(new \DateInterval('PT' . 1440 . 'M'));
+        $fechaExpiraToken = (new DateTime())->setTimezone(new DateTimeZone("America/Argentina/Buenos_Aires"));
+        $fechaExpiraToken->add(new DateInterval('PT' . 1440 . 'M'));
 
         //Guardo token y fecha expira
         $usuario->tokenReset = $tokenReset;
@@ -137,7 +141,7 @@ class LoginController extends Controller {
             ]);
             $credentials = $request->only('email');
 
-            $fechaHoy = (new \DateTime())->setTimezone(new \DateTimeZone("America/Argentina/Buenos_Aires"));
+            $fechaHoy = (new DateTime())->setTimezone(new DateTimeZone("America/Argentina/Buenos_Aires"));
             $usuario = Usuario::where([["tokenReset", $request['tokenReset']], ["fechaTokenReset", ">=", $fechaHoy]])->first();
             if (empty($usuario))
                 return Response::json(array(
@@ -177,7 +181,7 @@ class LoginController extends Controller {
         $validatedData = $request->only('token');
 
         //Busco usuario que coincida con el token y fecha
-        $fechaHoy = \Carbon\Carbon::now()->startOfDay()->format('Y-m-d H:i:s');
+        $fechaHoy = Carbon::now()->startOfDay()->format('Y-m-d H:i:s');
         $usuario = Usuario::where([["tokenReset", $validatedData['token']], ["fechaTokenReset", ">=", $fechaHoy]])->first();
         if (empty($usuario))
             return Response::json(array(
