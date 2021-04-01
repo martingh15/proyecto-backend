@@ -18,6 +18,7 @@ class CreateProductosTable extends Migration
 			$table->unsignedInteger('categoria_id')->nullable();
 			$table->string('nombre');
 			$table->string('imagen')->default("");
+			$table->string('fileImagen')->default("");
 			$table->string('descripcion')->default("");
 			$table->decimal('precioVigente', 10, 2);
 			$table->tinyInteger('habilitado')->default(1);
