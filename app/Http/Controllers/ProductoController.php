@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\ProductoService;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Response;
 
 class ProductoController extends Controller {
 	
@@ -48,7 +48,19 @@ class ProductoController extends Controller {
      * @return Response
      */
     public function store(Request $request) {
-        //
+        $servicio = $this->getProductoService();
+		$guardado = $servicio->guardarProducto($request);
+		if ($guardado->error()) {
+			$errores = $guardado->getMensajesErrorArray();
+			return Response::json(array(
+				'code'	  => 500,
+				'message' => $errores
+			), 500);
+		}
+		return Response::json(array(
+			'code' => 200,
+			'message' => "El producto se ha guardado con éxito"
+		), 200);
     }
 
     /**
@@ -91,6 +103,11 @@ class ProductoController extends Controller {
     public function destroy(int $id) {
         //
     }
+	
+	public function categorias(Request $request) {
+		$servicio = $this->getProductoService();
+		return $servicio->getCategorias();
+	}
 	
     protected function getProductoService(): ProductoService {
         return $this->productoService;
