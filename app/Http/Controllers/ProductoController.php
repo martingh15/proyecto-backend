@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\ProductoService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 
@@ -45,7 +46,7 @@ class ProductoController extends Controller {
      * Store a newly created resource in storage.
      *
      * @param  Request  $request
-     * @return Response
+     * @return JsonResponse
      */
     public function store(Request $request) {
         $servicio = $this->getProductoService();
@@ -98,10 +99,22 @@ class ProductoController extends Controller {
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return Response
+     * @return JsonResponse
      */
-    public function destroy(int $id) {
-        //
+    public function destroy(int $id): JsonResponse {
+        $servicio = $this->getProductoService();
+        $borrado  = $servicio->borrarProducto($id);
+        if ($borrado->error()) {
+            $errores = $borrado->getMensajesErrorArray();
+            return response()->json([
+                'code' => 500,
+                'message' => $errores
+            ], 500);
+        }
+        return response()->json([
+            'code' => 200,
+            'message' => "El producto se ha borrado con éxito"
+        ], 200);
     }
 	
 	public function categorias(Request $request) {

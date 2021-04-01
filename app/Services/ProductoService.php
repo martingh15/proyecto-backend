@@ -14,6 +14,12 @@ use Validator;
 class ProductoService  {
 	
 	// <editor-fold defaultstate="collapsed" desc="Búsquedas">
+
+    public function getProducto(int $id): ?Producto {
+        $producto = Producto::where([['id', $id]])->first();
+        return $producto;
+    }
+
 	public function getProductos() {
 		$productos = Producto::where('habilitado', 1)->with('categoria')->get();
 		foreach ($productos as $producto) {
@@ -32,7 +38,8 @@ class ProductoService  {
 		return Categoria::where('habilitado', 1)->with('productos')->get();
 	}	
 	// </editor-fold>
-	
+
+    // <editor-fold defaultstate="collapsed" desc="Alta de productos">
 	public function guardarProducto(Request $request): Resultado {
 		$resultado   = new Resultado();
 		try {
@@ -142,5 +149,29 @@ class ProductoService  {
 		}
         return $resultado;
     }
+
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="Borrado de productos">
+    public function borrarProducto(int $id): Resultado {
+        try {
+            DB::beginTransaction();
+            $producto  = $this->getProducto($id);
+            $resultado = new Resultado();
+            if (empty($producto)) {
+                $resultado->agregarError(Resultado::ERROR_NO_ENCONTRADO, "No se ha encontrado el producto a borrar");
+                return $resultado;
+            }
+            array_map('unlink', glob(public_path() . "/img/productos/$id-*"));
+            $producto->delete();
+            DB::commit();
+        } catch (Throwable $t) {
+            DB::rollback();
+            $resultado->agregarError(Resultado::ERROR_NO_ENCONTRADO, "Hubo un error al borrar el producto.");
+            \Log::info("Hubo un error al borrar el usuario: " . (string) $t);
+        }
+        return $resultado;
+    }
+    // </editor-fold>
 
 }
