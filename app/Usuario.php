@@ -44,36 +44,6 @@ class Usuario extends Authenticatable
     ];
 
 	protected $appends = [ 'esAdmin', 'esMozo', 'esVendedor', 'esComensal' ];
-	
-    /**
-     * The "booted" method of the model.
-     *
-     * @return void
-     */
-    protected static function boot()
-    {
-
-        parent::boot();
-
-        static::creating(function ($usuario) {
-			$hoy						  = Carbon::now()->setTimezone('America/Argentina/Salta')->toDateTimeString();
-			$logueado					  = Auth::user();
-			if (!empty($logueado)) {
-				$usuario->auditoriaCreador_id = $logueado->id;
-			}
-			$usuario->auditoriaCreado     = $hoy;
-			$usuario->auditoriaModificado = null;
-        });
-		
-		static::updating(function($usuario) {
-			$logueado							= Auth::user();
-            $hoy								= Carbon::now()->setTimezone('America/Argentina/Salta')->toDateTimeString();
-            $usuario->auditoriaModificado		= $hoy;
-			$usuario->auditoriaModificadoPor_id = $logueado->id;
-			\Log::info('USUARIO MODIFICADO');
-			\Log::info($usuario);
-        });
-    }
 
     /**
      * The roles that belong to the user.
@@ -144,6 +114,35 @@ class Usuario extends Authenticatable
     public function getEsComensalAttribute()
     {
         return $this->tieneRol(Rol::COMENSAL);
+    }
+	
+	/**
+     * The "booted" method of the model.
+     *
+     * @return void
+     */
+    protected static function boot() {
+
+        parent::boot();
+
+        static::creating(function ($usuario) {
+			$hoy						  = Carbon::now()->setTimezone('America/Argentina/Salta')->toDateTimeString();
+			$logueado					  = Auth::user();
+			if (!empty($logueado)) {
+				$usuario->auditoriaCreador_id = $logueado->id;
+			}
+			$usuario->auditoriaCreado     = $hoy;
+			$usuario->auditoriaModificado = null;
+        });
+		
+		static::updating(function($usuario) {
+			$logueado							= Auth::user();
+            $hoy								= Carbon::now()->setTimezone('America/Argentina/Salta')->toDateTimeString();
+            $usuario->auditoriaModificado		= $hoy;
+			$usuario->auditoriaModificadoPor_id = $logueado->id;
+			\Log::info('USUARIO MODIFICADO');
+			\Log::info($usuario);
+        });
     }
 	
 	public function __toString() {
