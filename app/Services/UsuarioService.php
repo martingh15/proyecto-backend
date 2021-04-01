@@ -407,7 +407,7 @@ class UsuarioService  {
     protected function getOperacionesAdmin(): array {
         return [
             [
-                'ruta'        => '/productos/listar',
+                'ruta'        => '/productos/listar/admin',
                 'icono'       => '',
                 'rol'         => Rol::ADMIN,
                 'titulo'      => 'Productos',

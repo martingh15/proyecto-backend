@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\ProductoService;
 use App\Services\UsuarioService;
 use Illuminate\Support\ServiceProvider;
 use JWTAuth;
@@ -25,8 +26,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bind( UsuarioService::class, function () {
+        $this->app->bind(UsuarioService::class, function () {
             return new UsuarioService();
+        });
+        
+		$this->app->bind(ProductoService::class, function () {
+            return new ProductoService();
         });
 
         $this->app->bind( JWTAuth::class, function ($manager, $user, $auth, $request) {
