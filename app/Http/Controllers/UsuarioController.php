@@ -13,15 +13,14 @@ class UsuarioController extends Controller
     /**
      * @var UsuarioService
      */
-    protected  $usuarioService;
+    protected $usuarioService;
 
     /**
      * Create a new controller instance.
      *
      * @param UsuarioService $usuarioService
      */
-    public function __construct(UsuarioService $usuarioService)
-    {
+    public function __construct(UsuarioService $usuarioService) {
         $this->usuarioService = $usuarioService;
     }
 
