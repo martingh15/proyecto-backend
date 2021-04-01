@@ -24,6 +24,7 @@ Route::post("/olvidoPassword", 'LoginController@olvidoPassword');
 Route::post("/resetPassword", 'LoginController@resetPassword');
 Route::post("/validarToken", 'LoginController@validarToken');
 Route::post("/validarTokenEmail", 'LoginController@validarTokenEmail');
+Route::get("/productos", 'ProductoController@index');
 
 Route::group(['middleware' => 'jwt.auth','jwt.refresh'], function () {
     Route::get('/usuarios/create', 'UsuarioController@create');
