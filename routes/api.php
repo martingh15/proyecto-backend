@@ -25,6 +25,7 @@ Route::post("/resetPassword", 'LoginController@resetPassword');
 Route::post("/validarToken", 'LoginController@validarToken');
 Route::post("/validarTokenEmail", 'LoginController@validarTokenEmail');
 Route::get("/productos", 'ProductoController@index');
+Route::get("/productos/categorias", 'ProductoController@categorias');
 
 Route::group(['middleware' => 'jwt.auth','jwt.refresh'], function () {
     Route::get('/usuarios/create', 'UsuarioController@create');
@@ -34,4 +35,5 @@ Route::group(['middleware' => 'jwt.auth','jwt.refresh'], function () {
     Route::post("/usuarios/{id}", 'UsuarioController@store');
 	Route::get("/usuario/{id}", 'UsuarioController@buscar');
 	Route::delete("/usuario/{id}", 'UsuarioController@destroy');
+	Route::post("/productos", 'ProductoController@store');
 });
