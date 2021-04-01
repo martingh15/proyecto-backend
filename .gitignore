@@ -1,5 +1,6 @@
 /nbproject/private/
 .env
 /vendor
-/public
+/public/.htaccess
+/public/img
 /.idea
