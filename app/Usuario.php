@@ -2,6 +2,8 @@
 
 namespace App;
 
+use App\Modelo\Rol;
+use App\Modelo\UsuarioRol;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;

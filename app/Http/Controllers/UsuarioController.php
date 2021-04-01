@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Usuario;
 use App\Services\UsuarioService;
-use Illuminate\Support\Facades\Auth;
+use App\Usuario;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
 
 class UsuarioController extends Controller
