@@ -52,15 +52,15 @@ class ProductoController extends Controller {
 		$guardado = $servicio->guardarProducto($request);
 		if ($guardado->error()) {
 			$errores = $guardado->getMensajesErrorArray();
-			return Response::json(array(
+			return response()->json([
 				'code'	  => 500,
 				'message' => $errores
-			), 500);
+			], 500);
 		}
-		return Response::json(array(
+		return response()->json([
 			'code' => 200,
 			'message' => "El producto se ha guardado con éxito"
-		), 200);
+		], 200);
     }
 
     /**

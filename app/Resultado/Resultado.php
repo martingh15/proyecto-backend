@@ -277,5 +277,10 @@ class Resultado {
 		$this->resultado = $resultado;
 		return $this;
 	}
-
+	
+	public function __toString() {
+		$mensajes = $this->getMensajes();
+		$errores  = $this->getMensajesError();
+		return "Mensajes: $mensajes, Errores: $errores";
+	}
 }
