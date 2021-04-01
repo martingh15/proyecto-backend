@@ -92,8 +92,8 @@ class ProductoService  {
 			//custom mensajes en las validaciones.
 			$messages = [
 				'image.mimes'	 => 'La imagen debe ser .png, .jpg, .jpeg o .gif',
-				'image.max'		 => "La imagen debe teber un tamaño menor a 7Mb",
-				'image.uploaded' => "Hubo un error al guardar la imagen"
+				'image.max'		 => "La imagen debe teber un tamaño menor a 10Mb",
+				'image.uploaded' => "Hubo un error al guardar la imagen, intente con una imagen de menor tamaño"
 			];
 
 			//creamos un array con la imagen para validad.
@@ -101,7 +101,7 @@ class ProductoService  {
 
 			//ponemos reglas de validación
 			$rules = array(
-				'image' => 'mimes:jpeg,jpg,png,gif|max:7000'
+				'image' => 'max:10000|mimes:jpeg,jpg,png,gif'
 			);
 
 			//llamamos al validator con la imagen las reglas y los custom mensajes
@@ -116,7 +116,7 @@ class ProductoService  {
 
 			//nombre de la imagen con idUnico-idGremio, obtengo la extension original del archivo
 			$fileName = "$producto->id-" . uniqid() . "." . $imagen->getClientOriginalExtension();
-			$carpeta  = public_path() . '/img/productos/' . $fileName;
+			$carpeta  = public_path() . '\img\productos\\' . $fileName;
 			$img	  = Image::make($imagen);
 
 			//Altura de la imagen a redimensionar en px
