@@ -49,7 +49,7 @@ class ProductoService  {
 			$nombre		   = $productoArray['nombre'] ?? '';
 			$descripcion   = $productoArray['descripcion'] ?? '';
 			$precioVigente = (float) $productoArray['precioVigente'] ?? 0;
-			$idCategoria   = (int) $productoArray['idCategoria'] ?? 0;
+			$idCategoria   = (int) $productoArray['categoria_id'] ?? 0;
 			
 			if (empty($nombre)) {
 				$resultado->agregarError(Resultado::ERROR_GUARDADO, "Debe ingresar el nombre del producto.");
