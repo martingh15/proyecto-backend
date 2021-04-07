@@ -89,10 +89,22 @@ class ProductoController extends Controller {
      *
      * @param  Request  $request
      * @param  int  $id
-     * @return Response
+     * @return JsonResponse
      */
     public function update(Request $request, int $id) {
-        //
+        $servicio = $this->getProductoService();
+        $guardado = $servicio->guardarProducto($request, $id);
+        if ($guardado->error()) {
+            $errores = $guardado->getMensajesErrorArray();
+            return response()->json([
+                'code'	  => 500,
+                'message' => $errores
+            ], 500);
+        }
+        return response()->json([
+            'code' => 200,
+            'message' => "El producto se ha guardado con éxito"
+        ], 200);
     }
 
     /**

@@ -40,11 +40,11 @@ class ProductoService  {
 	// </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Alta de productos">
-	public function guardarProducto(Request $request): Resultado {
+	public function guardarProducto(Request $request, int $id = null): Resultado {
 		$resultado   = new Resultado();
 		try {
 			DB::beginTransaction();
-			$objeto		   = $request['producto'];
+			$objeto		   = $request['producto'] ?? '';
 			$productoArray = json_decode($objeto, true);
 			$nombre		   = $productoArray['nombre'] ?? '';
 			$descripcion   = $productoArray['descripcion'] ?? '';
@@ -66,15 +66,26 @@ class ProductoService  {
 				return $resultado;
 			}
 
-			$producto				 = new Producto();
+			$producto = new Producto();
+			if ($id !== null && is_numeric($id) && $id > 0) {
+			    $producto = $this->getProducto($id);
+            }
+			if ($producto === null) {
+                $resultado->agregarError(Resultado::ERROR_GUARDADO, "No se ha encontrado el producto a editar.");
+                return $resultado;
+            }
 			$producto->nombre		 = $nombre;
 			$producto->categoria_id  = $categoria->id;
 			$producto->descripcion   = $descripcion;
 			$producto->precioVigente = $precioVigente;
 			$producto->save();
 		
-			$imagen		  = $request->file('imagen');
-			$creada		  = $this->crearImagen($producto, $imagen);
+			$imagen	= $request->file('imagen');
+			if ($imagen === null) {
+                DB::commit();
+                return $resultado;
+            }
+			$creada = $this->crearImagen($producto, $imagen);
 			$creada->fusionar($resultado);
 			if ($creada->error()) {
 				return $creada;
@@ -135,13 +146,16 @@ class ProductoService  {
 			});
 
 			//Guardo la imagen
-			$producto->imagen	  = $fileName;
-			$producto->fileImagen = $imagen->getClientOriginalName();
-			$img->save($carpeta);
-			$resultado->setResultado($producto);
-			if ($resultado->error() && $img instanceof Image) {
-				$img->destroy();
-			}
+            $nombreOriginal = $imagen->getClientOriginalName();
+			if ($producto->fileImagen !== $nombreOriginal) {
+                $producto->imagen     = $fileName;
+                $producto->fileImagen = $nombreOriginal;
+                $img->save($carpeta);
+                if ($resultado->error() && $img instanceof Image) {
+                    $img->destroy();
+                }
+            }
+            $resultado->setResultado($producto);
 			return $resultado;
 		} catch (Throwable $exception) {
 			\Log::info('Error imagen:' . $exception);
