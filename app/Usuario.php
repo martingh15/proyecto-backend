@@ -5,6 +5,7 @@ namespace App;
 use App\Modelo\Rol;
 use App\Modelo\UsuarioRol;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +17,9 @@ use Illuminate\Support\Facades\Auth;
  */
 class Usuario extends Authenticatable
 {
-    use Notifiable;
+    use Notifiable, SoftDeletes;
+
+    const DELETED_AT = "auditoriaBorrado";
 
     /**
      * Indicates if the model should be timestamped.
@@ -44,6 +47,13 @@ class Usuario extends Authenticatable
     ];
 
 	protected $appends = [ 'esAdmin', 'esMozo', 'esVendedor', 'esComensal' ];
+
+    /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
+     */
+    protected $dates = ['auditoriaBorrado'];
 
     /**
      * The roles that belong to the user.
@@ -140,8 +150,12 @@ class Usuario extends Authenticatable
             $hoy								= Carbon::now()->setTimezone('America/Argentina/Salta')->toDateTimeString();
             $usuario->auditoriaModificado		= $hoy;
 			$usuario->auditoriaModificadoPor_id = $logueado->id;
-			\Log::info('USUARIO MODIFICADO');
-			\Log::info($usuario);
+        });
+
+		static::deleting(function($usuario) {
+            $logueado						 = Auth::user();
+            $usuario->auditoriaBorradoPor_id = $logueado->id;
+            $usuario->save();
         });
     }
 	

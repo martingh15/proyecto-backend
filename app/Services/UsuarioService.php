@@ -22,7 +22,7 @@ class UsuarioService  {
 
     // <editor-fold defaultstate="collapsed" desc="Búsquedas">
 	public function getUsuario(int $id): ?Usuario {
-		$usuario = Usuario::where([['id', $id], ['borrado', 0]])->first();
+		$usuario = Usuario::where([['id', $id], ['auditoriaBorrado', null]])->first();
         return $usuario;
     }
 	
@@ -38,7 +38,7 @@ class UsuarioService  {
 	
 	public function getUsuarioLogueado(bool $conOperaciones = true) {
         $idUsuario = Auth::user()->id;
-        $usuario   = Usuario::where([['id', $idUsuario], ['borrado', 0]])->with('roles')->first();
+        $usuario   = Usuario::where([['id', $idUsuario], ['auditoriaBorrado', null]])->with('roles')->first();
         if ($conOperaciones) {
             $usuario['operaciones'] = $this->getOperacionesUsuario($usuario);
         }
@@ -52,7 +52,7 @@ class UsuarioService  {
         $usuarios = DB::table('usuarios')->selectRaw('usuarios.id')
             ->join("usuario_rol", "usuarios.id", "=", "usuario_rol.idUsuario")
             ->join("roles", "usuario_rol.idRol", "=", "roles.id")
-            ->where("usuarios.borrado", 0)
+            ->where("usuarios.auditoriaBorrado", null)
 			->where(function ($query) {
                 $query->orWhere("roles.nombre", Rol::MOZO)
                     ->orWhere("roles.nombre", Rol::VENDEDOR)
@@ -161,17 +161,19 @@ class UsuarioService  {
 	
 	// <editor-fold defaultstate="collapsed" desc="Borrado de usuario">
 	public function borrarUsuario(int $id): Resultado {
-		try {
-			$usuario   = $this->getUsuario($id);
-			$resultado = new Resultado();
+        $resultado = new Resultado();
+        try {
+            DB::beginTransaction();
+			$usuario = $this->getUsuario($id);
 			if (empty($usuario)) {
 				$resultado->agregarError(Resultado::ERROR_NO_ENCONTRADO, "No se ha encontrado el usuario a borrar");
 				return $resultado;
 			}
-			$usuario->borrado = 1;
-			$usuario->save();
+            $usuario->delete();
 			$resultado->agregarMensaje("El usuario se ha borrado con éxito.");
+            DB::commit();
 		} catch (Throwable $t) {
+            DB::rollback();
 			$resultado->agregarError(Resultado::ERROR_NO_ENCONTRADO, "Hubo un error inesperado al borrar el usuario.");
 			\Log::info("Hubo un error al borrar el usuario: " . (string) $t);
 		}

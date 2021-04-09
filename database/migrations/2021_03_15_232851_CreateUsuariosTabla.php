@@ -11,18 +11,22 @@ class CreateUsuariosTabla extends Migration
             $table->increments('id');
             $table->string('nombre', 191);
             $table->string('email', 191)->unique();
+            $table->bigInteger('dni')->nullable();
             $table->string('tokenEmail', 191)->nullable();
             $table->string('tokenReset', 191)->nullable();
             $table->dateTime('fechaTokenReset')->nullable();
             $table->tinyInteger('habilitado')->default(0);
-			$table->tinyInteger('borrado')->default(0);
             $table->string('password', 191);
+
             $table->dateTime('auditoriaCreado');
+            $table->dateTime('auditoriaBorrado')->nullable();
             $table->dateTime('auditoriaModificado')->nullable();
             $table->unsignedInteger('auditoriaCreador_id')->nullable();
+            $table->unsignedInteger('auditoriaBorradoPor_id')->nullable();
             $table->unsignedInteger('auditoriaModificadoPor_id')->nullable();
 
             $table->foreign('auditoriaCreador_id')->references('id')->on('usuarios');
+            $table->foreign('auditoriaBorradoPor_id')->references('id')->on('usuarios');
             $table->foreign('auditoriaModificadoPor_id')->references('id')->on('usuarios');
 
 
