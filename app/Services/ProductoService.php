@@ -48,7 +48,7 @@ class ProductoService  {
 			$productoArray = json_decode($objeto, true);
 			$nombre		   = $productoArray['nombre'] ?? '';
 			$descripcion   = $productoArray['descripcion'] ?? '';
-			$precioVigente = (float) $productoArray['precioVigente'] ?? 0;
+			$nuevoPrecio  = (float) $productoArray['precioVigente'] ?? 0;
 			$idCategoria   = (int) $productoArray['categoria_id'] ?? 0;
 			
 			if (empty($nombre)) {
@@ -58,7 +58,7 @@ class ProductoService  {
 			if (empty($categoria)) {
 				$resultado->agregarError(Resultado::ERROR_GUARDADO, "Debe seleccionar una categoría del producto.");
 			}
-			if ($precioVigente <= 0) {
+			if ($nuevoPrecio <= 0) {
 				$resultado->agregarError(Resultado::ERROR_GUARDADO, "Debe indicar el precio del producto.");
 			}			
 			
@@ -74,11 +74,13 @@ class ProductoService  {
                 $resultado->agregarError(Resultado::ERROR_GUARDADO, "No se ha encontrado el producto a editar.");
                 return $resultado;
             }
-			$producto->nombre		 = $nombre;
+
+            $producto->nombre		 = $nombre;
 			$producto->categoria_id  = $categoria->id;
 			$producto->descripcion   = $descripcion;
-			$producto->precioVigente = $precioVigente;
-			$producto->save();
+            $producto->save();
+            $producto->agregarPrecio($nuevoPrecio);
+
 		
 			$imagen	= $request->file('imagen');
 			if ($imagen === null) {
@@ -182,7 +184,7 @@ class ProductoService  {
         } catch (Throwable $t) {
             DB::rollback();
             $resultado->agregarError(Resultado::ERROR_NO_ENCONTRADO, "Hubo un error al borrar el producto.");
-            \Log::info("Hubo un error al borrar el usuario: " . (string) $t);
+            \Log::info("Hubo un error al borrar el producto: " . (string) $t);
         }
         return $resultado;
     }
