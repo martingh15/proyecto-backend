@@ -40,14 +40,22 @@ final class UsuariosRoot extends AbstractMigration
                 (SELECT id FROM usuarios WHERE nombre = 'Administrador')
             )
         ");
+        $this->execute("INSERT INTO producto_categorias VALUES(default, null, 'A1', 'Almacén', 1, 1, '2021-09-04 17:44', null, null, null);");
     }
 
     public function down(): void {
         $table = $this->table('usuarios');
-        $table->dropForeignKey('auditoriaCreador_id')
-            ->dropForeignKey('auditoriaBorradoPor_id')
-            ->dropForeignKey('auditoriaModificadoPor_id')
-            ->save();
+
+        if ($table->hasForeignKey('auditoriaCreador_id')) {
+            $table->dropForeignKey('auditoriaCreador_id');
+        }
+        if ($table->hasForeignKey('auditoriaBorradoPor_id')) {
+            $table->dropForeignKey('auditoriaBorradoPor_id');
+        }
+        if ($table->hasForeignKey('auditoriaModificadoPor_id')) {
+            $table->dropForeignKey('auditoriaModificadoPor_id');
+        }
+        $table->save();
         $this->execute("DELETE FROM usuario_rol;");
         $this->execute("DELETE FROM usuarios;");
     }
