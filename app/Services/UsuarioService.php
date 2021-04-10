@@ -9,6 +9,8 @@ use App\Modelo\Rol;
 use App\Usuario;
 use App\Modelo\UsuarioRol;
 use Exception;
+use Illuminate\Contracts\Routing\ResponseFactory;
+use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -182,14 +184,14 @@ class UsuarioService  {
 	// </editor-fold>
 		
 	// <editor-fold defaultstate="collapsed" desc="Editar usuario">
-	/**
-	 * Si $admin es true verificamos que el usuario logueado sea admin ya que
-	 * el usuario logueado está editando otro usuario con los roles.
-	 * 
-	 * @param array $usuarioArray
-	 * @param bool $admin
-	 * @return type
-	 */
+    /**
+     * Si $admin es true verificamos que el usuario logueado sea admin ya que
+     * el usuario logueado está editando otro usuario con los roles.
+     *
+     * @param array $usuarioArray
+     * @param bool $admin
+     * @return ResponseFactory|Application|\Symfony\Component\HttpFoundation\Response
+     */
     public function updateUsuario(array $usuarioArray, bool $admin = false) {
 		if ($admin) {
 			$idLogueado = Auth::user()->id;
@@ -216,16 +218,14 @@ class UsuarioService  {
                 'message' => "Usuario no encontrado, ingresen nuevamente"
             ), 401);
 		}
-		if ($admin) {
-			$resultado = $this->agregarRolesUsuario($usuario, $usuarioArray, $admin);
-			if ($resultado->error()) {
-				$errores = $resultado->getMensajesError();
-				return Response::json(array(
-					'code' => 500,
-					'message' => "Hubo un error al actualizar el usuario: $errores"
-				), 500);
-			}
-		}
+        $resultado = $this->agregarRolesUsuario($usuario, $usuarioArray, $admin);
+        if ($resultado->error()) {
+            $errores = $resultado->getMensajesError();
+            return Response::json(array(
+                'code' => 500,
+                'message' => "Hubo un error al actualizar el usuario: $errores"
+            ), 500);
+        }
 		if (isset($usuarioArray['dni'])) {
 			$dni		  = (int) $usuarioArray['dni'];
 			$usuario->dni = $dni > 0 ? $dni : null;
@@ -316,6 +316,13 @@ class UsuarioService  {
 			if ($borrados->error()) {
 				return $borrados;
 			}
+            $esComensal = isset($usuarioArray['esComensal']) && $usuarioArray['esComensal'] || !$tipoRegistroAdmin;
+            if ($esComensal) {
+                $comensalAgregado = $this->agregarRol($usuario, Rol::COMENSAL);
+                if ($comensalAgregado->error()) {
+                    $resultado->fusionar($comensalAgregado);
+                }
+            }
 			$resultado->fusionar($borrados);
 			$esAdmin = isset($usuarioArray['esAdmin']) && $usuarioArray['esAdmin'];
 			if ($esAdmin) {
@@ -336,13 +343,6 @@ class UsuarioService  {
 				$vendedorAgregado = $this->agregarRol($usuario, Rol::VENDEDOR);
 				if ($vendedorAgregado->error()) {
 					$resultado->fusionar($vendedorAgregado);
-				}
-			}
-			$esComensal = isset($usuarioArray['esComensal']) && $usuarioArray['esComensal'];
-			if ($esComensal) {
-				$comensalAgregado = $this->agregarRol($usuario, Rol::COMENSAL);
-				if ($comensalAgregado->error()) {
-					$resultado->fusionar($comensalAgregado);
 				}
 			}
 		} catch (Throwable $t) {
