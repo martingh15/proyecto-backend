@@ -37,6 +37,16 @@ class UsuarioService  {
     public function getUsuarioPorEmail(string $email): ?Usuario {
         return Usuario::where([['email', $email]])->first();
     }
+
+    /**
+     * Busca usuarios por dni.
+     *
+     * @param string $dni
+     * @return Usuario|null
+     */
+    public function getUsuarioPorDni(string $dni): ?Usuario {
+        return Usuario::where([['dni', $dni], ['auditoriaBorrado', null]])->first();
+    }
 	
 	public function getUsuarioLogueado(bool $conOperaciones = true) {
         $idUsuario = Auth::user()->id;
@@ -215,7 +225,7 @@ class UsuarioService  {
 		if (empty($usuario)) {
             return Response::json(array(
                 'code' => 404,
-                'message' => "Usuario no encontrado, ingresen nuevamente"
+                'message' => "No se ha encontrado el usuario a editar."
             ), 401);
 		}
         $resultado = $this->agregarRolesUsuario($usuario, $usuarioArray, $admin);
@@ -228,6 +238,13 @@ class UsuarioService  {
         }
 		if (isset($usuarioArray['dni'])) {
 			$dni		  = (int) $usuarioArray['dni'];
+			$repetido     = $this->getUsuarioPorDni($dni);
+			if ($repetido !== null && $repetido->id !== $idUsuario) {
+                return Response::json(array(
+                    'code' => 500,
+                    'message' => "Ya existe un usuario con ese dni."
+                ), 500);
+            }
 			$usuario->dni = $dni > 0 ? $dni : null;
 		}
 		if (isset($usuarioArray['nombre']) && is_string($usuarioArray['nombre'])) {
@@ -312,6 +329,9 @@ class UsuarioService  {
 	protected function agregarRolesUsuario(Usuario $usuario, array $usuarioArray, bool $tipoRegistroAdmin): Resultado {
 		$resultado = new Resultado();
 		try {
+            if (!$tipoRegistroAdmin) {
+		        return $resultado;
+            }
 			$borrados  = $this->borrarRoles($usuario);
 			if ($borrados->error()) {
 				return $borrados;

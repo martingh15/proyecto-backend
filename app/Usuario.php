@@ -78,7 +78,6 @@ class Usuario extends Authenticatable
         $roles = $this->roles;
         foreach ($roles as $rol) {
             $nombreRol = $rol['nombre'];
-			$persona = $this->nombre;
             if ($nombre === $nombreRol) {
                 return true;
             }
