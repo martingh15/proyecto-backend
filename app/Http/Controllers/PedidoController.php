@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Modelo\Pedido\Pedido;
 use App\Services\PedidoService;
-use Illuminate\Support\Facades\Response;
+use Illuminate\Http\JsonResponse;
 
 class PedidoController extends Controller {
 
@@ -24,11 +25,20 @@ class PedidoController extends Controller {
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return Response
+     * @return JsonResponse|Pedido
      */
-    public function show(int $id) {
-
+    public function index() {
+        $servicio = $this->getPedidoService();
+        $pedido   =  $servicio->getPedidoAbierto();
+        $success  = true;
+        if ($pedido === null) {
+            $success = false;
+        }
+        return response()->json([
+            'code'	  => 200,
+            'success' => $success,
+            'pedido'  => $pedido
+        ], 200);;
     }
 
     protected function getPedidoService(): PedidoService {

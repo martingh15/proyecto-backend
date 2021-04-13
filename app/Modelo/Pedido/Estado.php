@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Estado extends GenericModel {
 
+    const ABIERTO = 'abierto';
+
     protected $table = "pedido_estados";
 
     /**
