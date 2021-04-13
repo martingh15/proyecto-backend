@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\PedidoService;
 use App\Services\ProductoService;
 use App\Services\UsuarioService;
 use Illuminate\Support\ServiceProvider;
@@ -34,8 +35,13 @@ class AppServiceProvider extends ServiceProvider
             return new ProductoService();
         });
 
+        $this->app->bind(PedidoService::class, function () {
+            return new PedidoService();
+        });
+
         $this->app->bind( JWTAuth::class, function ($manager, $user, $auth, $request) {
             return new JWTAuth($manager, $user, $auth, $request);
         });
+
     }
 }

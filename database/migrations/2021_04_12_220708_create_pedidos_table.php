@@ -16,6 +16,7 @@ class CreatePedidosTable extends Migration
         Schema::create('pedido_pedidos', function (Blueprint $table) {
             $table->increments('id');
             $table->dateTime('fecha');
+            $table->string('ultimoEstado');
             $table->float('total');
 
             $table->dateTime('auditoriaCreado');

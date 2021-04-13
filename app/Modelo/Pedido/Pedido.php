@@ -24,4 +24,13 @@ class Pedido extends GenericModel {
     public function lineas() {
         return $this->hasMany(Linea::class, "pedido_id" ,"id");
     }
+
+    /**
+     * Los estados que pertenecen al producto.
+     *
+     * @return HasMany
+     */
+    public function estados() {
+        return $this->hasMany(Estado::class, "pedido_id" ,"id");
+    }
 }

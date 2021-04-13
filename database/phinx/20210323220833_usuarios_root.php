@@ -40,7 +40,7 @@ final class UsuariosRoot extends AbstractMigration
                 (SELECT id FROM usuarios WHERE nombre = 'Administrador')
             )
         ");
-        $this->execute("INSERT INTO producto_categorias VALUES(default, null, 'A1', 'Almacén', 1, 1, '2021-09-04 17:44', null, null, null);");
+        $this->execute("INSERT INTO producto_categorias VALUES(default, null, 'A1', 'Almacén', 1, 1, '2021-09-04 17:44', null, null, null, null, null);");
     }
 
     public function down(): void {
