@@ -6,8 +6,13 @@ use App\GenericModel;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Producto extends GenericModel {
+
+    use SoftDeletes;
+
+    const DELETED_AT = "auditoriaBorrado";
     
 	protected $table = "producto_productos";
 	
@@ -17,6 +22,13 @@ class Producto extends GenericModel {
      * @var bool
      */
     public $timestamps = false;
+
+    /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
+     */
+    protected $dates = ['auditoriaBorrado'];
 
     public function agregarPrecio(float $nuevoPrecio): Producto {
         $anterior = $this->precioVigente;

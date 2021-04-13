@@ -2,7 +2,7 @@
 
 namespace App;
 
-use Auth;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
@@ -82,8 +82,10 @@ class GenericModel extends Model {
             // ... code here
         });
 
-        self::deleting(function ($model) {
-            // ... code here
+        static::deleting(function($usuario) {
+            $logueado						 = Auth::user();
+            $usuario->auditoriaBorradoPor_id = $logueado->id;
+            $usuario->save();
         });
 
         self::deleted(function ($model) {

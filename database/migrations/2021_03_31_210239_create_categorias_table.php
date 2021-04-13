@@ -20,15 +20,17 @@ class CreateCategoriasTable extends Migration
 			$table->string('nombre');
 			$table->string('orden');
 			$table->tinyInteger('habilitado')->default(1);
-			
-			$table->dateTime('auditoriaCreado');
-            $table->dateTime('auditoriaModificado')->nullable();
-            $table->unsignedInteger('auditoriaCreador_id')->nullable();
-            $table->unsignedInteger('auditoriaModificadoPor_id')->nullable();
 
-            $table->foreign('superior_id')->references('id')->on('producto_categorias');
-            $table->foreign('auditoriaCreador_id')->references('id')->on('usuarios');
-            $table->foreign('auditoriaModificadoPor_id')->references('id')->on('usuarios');            
+             $table->dateTime('auditoriaCreado');
+             $table->dateTime('auditoriaBorrado')->nullable();
+             $table->dateTime('auditoriaModificado')->nullable();
+             $table->unsignedInteger('auditoriaCreador_id')->nullable();
+             $table->unsignedInteger('auditoriaBorradoPor_id')->nullable();
+             $table->unsignedInteger('auditoriaModificadoPor_id')->nullable();
+
+             $table->foreign('auditoriaCreador_id')->references('id')->on('usuarios');
+             $table->foreign('auditoriaBorradoPor_id')->references('id')->on('usuarios');
+             $table->foreign('auditoriaModificadoPor_id')->references('id')->on('usuarios');
         });
     }
 
