@@ -276,8 +276,12 @@ class UsuarioService  {
 			return $resultado;
 		}
 		try {
-			$rol   = Rol::where('nombre', $rol)->first();
-			$idRol = $rol->id;
+			$objetoRol = Rol::where('nombre', $rol)->first();
+			if (empty($objetoRol)) {
+			    $resultado->agregarError(Resultado::ERROR_GENERICO, "No se ha encontrado el rol $rol");
+			    return $resultado;
+            }
+			$idRol = $objetoRol->id;
 
 			$usuarioRol				 = new UsuarioRol();
 			$usuarioRol->idRol		 = $idRol;
@@ -332,7 +336,7 @@ class UsuarioService  {
             if (!$tipoRegistroAdmin) {
 		        return $resultado;
             }
-			$borrados  = $this->borrarRoles($usuario);
+			$borrados = $this->borrarRoles($usuario);
 			if ($borrados->error()) {
 				return $borrados;
 			}
