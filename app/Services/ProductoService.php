@@ -48,7 +48,7 @@ class ProductoService  {
 			$productoArray = json_decode($objeto, true);
 			$nombre		   = $productoArray['nombre'] ?? '';
 			$descripcion   = $productoArray['descripcion'] ?? '';
-			$nuevoPrecio  = (float) $productoArray['precioVigente'] ?? 0;
+			$nuevoPrecio   = (float) $productoArray['precioVigente'] ?? 0;
 			$idCategoria   = (int) $productoArray['categoria_id'] ?? 0;
 			
 			if (empty($nombre)) {
@@ -75,9 +75,9 @@ class ProductoService  {
                 return $resultado;
             }
 
-            $producto->nombre		 = $nombre;
-			$producto->categoria_id  = $categoria->id;
-			$producto->descripcion   = $descripcion;
+            $producto->nombre		= $nombre;
+			$producto->categoria_id = $categoria->id;
+			$producto->descripcion  = $descripcion;
             $producto->save();
             $producto->agregarPrecio($nuevoPrecio);
 
