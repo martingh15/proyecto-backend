@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Modelo\Pedido\Pedido;
 use App\Services\PedidoService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
 
 class PedidoController extends Controller {
 
@@ -37,8 +39,26 @@ class PedidoController extends Controller {
         return response()->json([
             'code'	  => 200,
             'success' => $success,
-            'pedido'  => $pedido
-        ], 200);;
+            'pedido'  => $pedido->toArray()
+        ], 200);
+    }
+
+    public function store(Request $request) {
+        $servicio = $this->getPedidoService();
+        $pedido   = json_decode($request->getContent(), true);
+        $nuevo    =  $servicio->guardar($pedido);
+        if ($nuevo->error()) {
+            $errores = $nuevo->getMensajesErrorArray();
+            return Response::json(array(
+                'code'    => 500,
+                'message' => $errores
+            ), 500);
+        }
+        $pedido = $servicio->getPedidoAbierto();
+        return Response::json(array(
+            'code'   => 200,
+            'pedido' => $pedido
+        ), 200);
     }
 
     protected function getPedidoService(): PedidoService {

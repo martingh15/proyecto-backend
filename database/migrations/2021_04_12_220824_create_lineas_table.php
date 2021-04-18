@@ -15,11 +15,13 @@ class CreateLineasTable extends Migration
     {
         Schema::create('pedido_lineas', function (Blueprint $table) {
             $table->increments('id');
+            $table->unsignedInteger('pedido_id');
             $table->unsignedInteger('producto_id');
             $table->bigInteger('cantidad');
             $table->float('subtotal');
             $table->float('total');
 
+            $table->foreign('pedido_id')->references('id')->on('pedido_pedidos');
             $table->foreign('producto_id')->references('id')->on('producto_productos');
 
             $table->dateTime('auditoriaCreado');

@@ -15,11 +15,11 @@ class CreateEstadosTable extends Migration
     {
         Schema::create('pedido_estados', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('producto_id');
+            $table->unsignedInteger('pedido_id');
             $table->string('estado');
             $table->dateTime('fecha');
 
-            $table->foreign('producto_id')->references('id')->on('producto_productos');
+            $table->foreign('pedido_id')->references('id')->on('pedido_pedidos');
         });
     }
 

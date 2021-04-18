@@ -36,7 +36,8 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $this->app->bind(PedidoService::class, function () {
-            return new PedidoService();
+            $productoService = new ProductoService();
+            return new PedidoService($productoService);
         });
 
         $this->app->bind( JWTAuth::class, function ($manager, $user, $auth, $request) {

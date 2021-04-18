@@ -3,6 +3,7 @@
 namespace App\Modelo\Pedido;
 
 use App\GenericModel;
+use App\Modelo\Producto\Producto;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Linea extends GenericModel {
@@ -17,11 +18,20 @@ class Linea extends GenericModel {
     public $timestamps = false;
 
     /**
-     * La categoría al la cual el producto pertenece.
+     * El pedido de la línea.
      *
      * @return BelongsTo
      */
     public function pedido() {
-        return $this->belongsTo(Pedido::class, 'producto_id');
+        return $this->belongsTo(Pedido::class, 'pedido_id');
+    }
+
+    /**
+     * El producto de la línea.
+     *
+     * @return BelongsTo
+     */
+    public function producto() {
+        return $this->belongsTo(Producto::class, 'producto_id');
     }
 }

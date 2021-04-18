@@ -1,5 +1,6 @@
 <?php
 
+use App\Modelo\Pedido\Estado;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -16,8 +17,8 @@ class CreatePedidosTable extends Migration
         Schema::create('pedido_pedidos', function (Blueprint $table) {
             $table->increments('id');
             $table->dateTime('fecha');
-            $table->string('ultimoEstado');
-            $table->float('total');
+            $table->string('ultimoEstado')->default(Estado::ABIERTO);
+            $table->float('total')->default(0);
 
             $table->dateTime('auditoriaCreado');
             $table->dateTime('auditoriaBorrado')->nullable();

@@ -49,7 +49,7 @@ class GenericModel extends Model {
         return $this->errors;
     }
 
-    public static function boot() {
+    protected static function boot() {
 		
         parent::boot();
 
