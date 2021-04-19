@@ -35,6 +35,7 @@ class PedidoService  {
      * @return Pedido|null
      */
     public function getPedidoAbierto(int $idUsuario): ?Pedido {
+        $pedido = null;
         try {
             $pedido = Pedido::where([
                 ['usuario_id', $idUsuario],
@@ -107,19 +108,25 @@ class PedidoService  {
                    $resultado->agregarError(Resultado::ERROR_GUARDADO, "Hubo un error al agregar el producto.");
                    return $resultado;
                }
+               $precio = $producto->precioVigente;
                $actual = $this->getLinea($id, $pedido);
                if ($actual !== null && $cantidad > 0) {
-                   $this->actualizarLinea($producto, $actual, $cantidad);
+                   $this->actualizarLinea($actual, $cantidad, $precio);
                } else if ($actual !== null && $cantidad === 0) {
                    $actual->delete();
                }
                if ($actual === null) {
-                   $creada = $this->crearLinea($pedido, $producto, $cantidad);
+                   $creada  = $this->crearLinea($pedido, $producto, $cantidad);
                    $actual  = $creada->getResultado();
                }
-
-               $subtotal = $actual->total;
-               $total    += $subtotal;
+               if ($actual !== null && $cantidad > 0) {
+                   $total += $cantidad * $precio;
+               }
+           }
+           if ($pedido->lineas()->count() === 0) {
+               $pedido->estados()->delete();
+               $pedido->delete();
+               return $resultado;
            }
            $pedido->total = $total;
            $pedido->save();
@@ -133,8 +140,7 @@ class PedidoService  {
         return Linea::where([['id', $id], ['pedido_id', $pedido->id]])->first();
     }
 
-    public function actualizarLinea(Producto $producto, Linea $linea, int $cantidad) {
-        $precio = $producto->precioVigente;
+    public function actualizarLinea(Linea $linea, int $cantidad, float $precio) {
         $linea->cantidad = $cantidad;
         $linea->subtotal = $precio;
         $linea->total    = $precio * $cantidad;

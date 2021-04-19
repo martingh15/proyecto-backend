@@ -33,15 +33,17 @@ class PedidoController extends Controller {
     public function index() {
         $servicio  = $this->getPedidoService();
         $idUsuario = Auth::user()->id;
-        $pedido    =  $servicio->getPedidoAbierto($idUsuario);
+        $pedido    = $servicio->getPedidoAbierto($idUsuario);
         $success   = true;
         if ($pedido === null) {
             $success = false;
+        } else {
+            $pedido = $pedido->toArray();
         }
         return response()->json([
             'code'	  => 200,
             'success' => $success,
-            'pedido'  => $pedido->toArray()
+            'pedido'  => $pedido
         ], 200);
     }
 
