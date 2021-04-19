@@ -8,6 +8,7 @@ use App\Modelo\Pedido\Pedido;
 use App\Modelo\Producto\Producto;
 use App\Resultado\Resultado;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
@@ -30,11 +31,15 @@ class PedidoService  {
     /**
      * Busca el último pedido abierto
      *
+     * @param int $idUsuario
      * @return Pedido|null
      */
-    public function getPedidoAbierto(): ?Pedido {
+    public function getPedidoAbierto(int $idUsuario): ?Pedido {
         try {
-            $pedido = Pedido::where('ultimoEstado', Estado::ABIERTO)->with('lineas')->orderBy('fecha', 'DESC')->first();
+            $pedido = Pedido::where([
+                ['usuario_id', $idUsuario],
+                ['ultimoEstado', Estado::ABIERTO]
+            ])->with('lineas')->orderBy('fecha', 'DESC')->first();
         } catch (Throwable $exc) {
             return null;
         }
@@ -56,16 +61,20 @@ class PedidoService  {
         return $pedido;
     }
 
-    public function guardar(array $pedido): Resultado {
+    public function guardar(array $pedido, int $idUsuario): Resultado {
         $resultado = new Resultado();
         try {
             DB::beginTransaction();
             $idPedido  = $pedido['id'];
             $nuevo     = new Pedido();
             if (intval($idPedido) > 0) {
-                $nuevo = $this->getPedido($idPedido);
+                $nuevo = $this->getPedidoAbierto($idUsuario);
             }
-            $nuevo->fecha  = Carbon::now();
+            if (intval($nuevo->id) !== intval($idPedido)) {
+                \Log::info("Se están duplicando los pedidos");
+            }
+            $nuevo->usuario_id = $idUsuario;
+            $nuevo->fecha      = Carbon::now();
             $nuevo->save();
             $lineasArray   = $pedido['lineas'];
             $creadas       = $this->crearLineas($nuevo, $lineasArray);
@@ -86,7 +95,8 @@ class PedidoService  {
        $productoService = $this->getProductoService();
        try {
            foreach ($lineas as $linea) {
-               $idProducto = $linea['producto'] ?? 0;
+               $id         = $linea['id'] ?? 0;
+               $idProducto = $linea['producto_id'] ?? 0;
                $cantidad   = $linea['cantidad'];
                $producto   = is_numeric($idProducto) ? $productoService->getProducto($idProducto) : null;
                if (empty($producto)) {
@@ -97,9 +107,18 @@ class PedidoService  {
                    $resultado->agregarError(Resultado::ERROR_GUARDADO, "Hubo un error al agregar el producto.");
                    return $resultado;
                }
-               $creada   = $this->crearLinea($pedido, $producto, $cantidad);
-               $linea    = $creada->getResultado();
-               $subtotal = $linea->total;
+               $actual = $this->getLinea($id, $pedido);
+               if ($actual !== null && $cantidad > 0) {
+                   $this->actualizarLinea($producto, $actual, $cantidad);
+               } else if ($actual !== null && $cantidad === 0) {
+                   $actual->delete();
+               }
+               if ($actual === null) {
+                   $creada = $this->crearLinea($pedido, $producto, $cantidad);
+                   $actual  = $creada->getResultado();
+               }
+
+               $subtotal = $actual->total;
                $total    += $subtotal;
            }
            $pedido->total = $total;
@@ -108,6 +127,18 @@ class PedidoService  {
            $resultado->agregarError(Resultado::ERROR_GUARDADO, "Ha ocurrido un error al crear el pedido.");
        }
        return $resultado;
+    }
+
+    public function getLinea(int $id, Pedido $pedido): ?Linea {
+        return Linea::where([['id', $id], ['pedido_id', $pedido->id]])->first();
+    }
+
+    public function actualizarLinea(Producto $producto, Linea $linea, int $cantidad) {
+        $precio = $producto->precioVigente;
+        $linea->cantidad = $cantidad;
+        $linea->subtotal = $precio;
+        $linea->total    = $precio * $cantidad;
+        $linea->save();
     }
 
     public function crearLinea(Pedido $pedido, Producto $producto, int $cantidad): Resultado {

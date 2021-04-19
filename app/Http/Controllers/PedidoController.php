@@ -6,6 +6,7 @@ use App\Modelo\Pedido\Pedido;
 use App\Services\PedidoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
 
 class PedidoController extends Controller {
@@ -30,9 +31,10 @@ class PedidoController extends Controller {
      * @return JsonResponse|Pedido
      */
     public function index() {
-        $servicio = $this->getPedidoService();
-        $pedido   =  $servicio->getPedidoAbierto();
-        $success  = true;
+        $servicio  = $this->getPedidoService();
+        $idUsuario = Auth::user()->id;
+        $pedido    =  $servicio->getPedidoAbierto($idUsuario);
+        $success   = true;
         if ($pedido === null) {
             $success = false;
         }
@@ -44,9 +46,10 @@ class PedidoController extends Controller {
     }
 
     public function store(Request $request) {
-        $servicio = $this->getPedidoService();
-        $pedido   = json_decode($request->getContent(), true);
-        $nuevo    =  $servicio->guardar($pedido);
+        $servicio  = $this->getPedidoService();
+        $idUsuario = Auth::user()->id;
+        $pedido    = json_decode($request->getContent(), true);
+        $nuevo     =  $servicio->guardar($pedido, $idUsuario);
         if ($nuevo->error()) {
             $errores = $nuevo->getMensajesErrorArray();
             return Response::json(array(
@@ -54,7 +57,7 @@ class PedidoController extends Controller {
                 'message' => $errores
             ), 500);
         }
-        $pedido = $servicio->getPedidoAbierto();
+        $pedido = $servicio->getPedidoAbierto($idUsuario);
         return Response::json(array(
             'code'   => 200,
             'pedido' => $pedido
