@@ -51,7 +51,7 @@ class PedidoController extends Controller {
         $servicio  = $this->getPedidoService();
         $idUsuario = Auth::user()->id;
         $pedido    = json_decode($request->getContent(), true);
-        $nuevo     =  $servicio->guardar($pedido, $idUsuario);
+        $nuevo     =  $servicio->guardarPedidoActivo($pedido, $idUsuario);
         if ($nuevo->error()) {
             $errores = $nuevo->getMensajesErrorArray();
             return Response::json(array(

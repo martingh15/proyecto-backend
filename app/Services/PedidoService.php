@@ -62,7 +62,14 @@ class PedidoService  {
         return $pedido;
     }
 
-    public function guardar(array $pedido, int $idUsuario): Resultado {
+    /**
+     * Crea o edita el pedido activo.
+     *
+     * @param array $pedido
+     * @param int $idUsuario
+     * @return Resultado
+     */
+    public function guardarPedidoActivo(array $pedido, int $idUsuario): Resultado {
         $resultado = new Resultado();
         try {
             DB::beginTransaction();
@@ -72,25 +79,32 @@ class PedidoService  {
                 $nuevo = $this->getPedidoAbierto($idUsuario);
             }
             if (intval($nuevo->id) !== intval($idPedido)) {
-                \Log::info("Se están duplicando los pedidos");
+                \Log::info("ALERTA: Se están duplicando los pedidos");
             }
             $nuevo->usuario_id = $idUsuario;
             $nuevo->fecha      = Carbon::now();
             $nuevo->save();
-            $lineasArray   = $pedido['lineas'];
-            $creadas       = $this->crearLineas($nuevo, $lineasArray);
-            if ($creadas->error()) {
-                return $creadas;
+            $lineasArray = $pedido['lineas'];
+            $guardadas   = $this->guardarLineas($nuevo, $lineasArray);
+            if ($guardadas->error()) {
+                return $guardadas;
             }
             DB::commit();
         } catch(Throwable $exc) {
             DB::rollback();
-            $resultado->agregarError(Resultado::ERROR_GUARDADO, "Hubo un error al crear el pedido");
+            $resultado->agregarError(Resultado::ERROR_GUARDADO, "Hubo un error al crear el pedido.");
         }
         return $resultado;
     }
 
-    public function crearLineas(Pedido $pedido, array $lineas): Resultado {
+    /**
+     * Crea o edita las líneas del pedido.
+     *
+     * @param Pedido $pedido
+     * @param array $lineas
+     * @return Resultado
+     */
+    public function guardarLineas(Pedido $pedido, array $lineas): Resultado {
        $total           = 0;
        $resultado       = new Resultado();
        $productoService = $this->getProductoService();
@@ -109,19 +123,17 @@ class PedidoService  {
                    return $resultado;
                }
                $precio = $producto->precioVigente;
-               $actual = $this->getLinea($id, $pedido);
-               if ($actual !== null && $cantidad > 0) {
-                   $this->actualizarLinea($actual, $cantidad, $precio);
-               } else if ($actual !== null && $cantidad === 0) {
+               $actual = $id > 0 ? $this->getLinea($id, $pedido) : null;
+               if ($actual !== null && $cantidad === 0) {
                    $actual->delete();
+                   continue;
                }
-               if ($actual === null) {
-                   $creada  = $this->crearLinea($pedido, $producto, $cantidad);
-                   $actual  = $creada->getResultado();
+               $creada = $this->guardarLinea($pedido, $producto, $cantidad, $actual);
+               if ($creada->error()) {
+                   $resultado->fusionar($creada);
+                   continue;
                }
-               if ($actual !== null && $cantidad > 0) {
-                   $total += $cantidad * $precio;
-               }
+               $total += $cantidad * $precio;
            }
            if ($pedido->lineas()->count() === 0) {
                $pedido->estados()->delete();
@@ -136,24 +148,40 @@ class PedidoService  {
        return $resultado;
     }
 
+    /**
+     * Busca una línea de un pedido por id.
+     *
+     * @param int $id
+     * @param Pedido $pedido
+     * @return Linea|null
+     */
     public function getLinea(int $id, Pedido $pedido): ?Linea {
         return Linea::where([['id', $id], ['pedido_id', $pedido->id]])->first();
     }
 
-    public function actualizarLinea(Linea $linea, int $cantidad, float $precio) {
-        $linea->cantidad = $cantidad;
-        $linea->subtotal = $precio;
-        $linea->total    = $precio * $cantidad;
-        $linea->save();
-    }
-
-    public function crearLinea(Pedido $pedido, Producto $producto, int $cantidad): Resultado {
+    /**
+     * Crea o edita la línea de un pedido.
+     *
+     * @param Pedido $pedido
+     * @param Producto $producto
+     * @param int $cantidad
+     * @param Linea|null $linea
+     * @return Resultado
+     */
+    public function guardarLinea(
+        Pedido $pedido,
+        Producto $producto,
+        int $cantidad,
+        Linea $linea = null
+    ): Resultado {
         $resultado = new Resultado();
         try {
-            $linea              = new Linea();
+            if ($linea === null) {
+                $linea              = new Linea();
+                $linea->pedido_id   = $pedido->id;
+                $linea->producto_id = $producto->id;
+            }
             $precio             = $producto->precioVigente;
-            $linea->pedido_id   = $pedido->id;
-            $linea->producto_id = $producto->id;
             $linea->cantidad    = $cantidad;
             $linea->subtotal    = $precio;
             $linea->total       = $precio * $cantidad;
