@@ -8,7 +8,6 @@ use App\Modelo\Pedido\Pedido;
 use App\Modelo\Producto\Producto;
 use App\Resultado\Resultado;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
@@ -109,6 +108,11 @@ class PedidoService  {
        $resultado       = new Resultado();
        $productoService = $this->getProductoService();
        try {
+           $idsNuevos = array_column($lineas, 'id');
+           $borradas  = $this->borrarLineas($pedido, $idsNuevos);
+           if ($borradas->error()) {
+               return $borradas;
+           }
            foreach ($lineas as $linea) {
                $id         = $linea['id'] ?? 0;
                $idProducto = $linea['producto_id'] ?? 0;
@@ -190,6 +194,33 @@ class PedidoService  {
             $resultado->agregarError(Resultado::ERROR_GUARDADO,"Hubo un error al crear el pedido.");
         }
         $resultado->setResultado($linea);
+        return $resultado;
+    }
+
+    /**
+     * Borra las líneas del pedido según los nuevos ids de líneas comparando
+     * con los ids viejos
+     *
+     * @param Pedido $pedido
+     * @param array $nuevosIds
+     * @return Resultado
+     */
+    protected function borrarLineas(Pedido $pedido, array $nuevosIds): Resultado {
+        $resultado = new Resultado();
+        try {
+            $viejos = $pedido->getIdsLineas();
+            foreach ($viejos as $id) {
+                $linea = null;
+                if (!in_array($id, $nuevosIds)) {
+                    $linea = $this->getLinea($id, $pedido);
+                }
+                if ($linea !== null) {
+                    $linea->delete();
+                }
+            }
+        } catch(Throwable $exc) {
+            $resultado->agregarError(Resultado::ERROR_GUARDADO, "Hubo un error al guardar el pedido.");
+        }
         return $resultado;
     }
 

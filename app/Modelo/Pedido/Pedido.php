@@ -20,6 +20,20 @@ class Pedido extends GenericModel {
     public $timestamps = false;
 
     /**
+     * Devuelve los ids de las líneas del pedido
+     *
+     * @return array
+     */
+    public function getIdsLineas(): array {
+        $ids = [];
+        $lineas = $this->lineas;
+        foreach ($lineas as $linea) {
+            $ids[] = $linea->id;
+        }
+        return $ids;
+    }
+
+    /**
      * Las líneas que pertenecen al producto.
      *
      * @return HasMany
