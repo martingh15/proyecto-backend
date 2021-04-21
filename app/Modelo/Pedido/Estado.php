@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Estado extends Model {
 
     const ABIERTO = 'abierto';
+    const FINALIZADO = 'finalizado';
 
     protected $table = "pedido_estados";
 

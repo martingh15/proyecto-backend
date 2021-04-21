@@ -249,6 +249,31 @@ class PedidoService  {
         return $resultado;
     }
 
+    /**
+     * Cerrar un pedido por id.
+     *
+     * @param int $id
+     * @return Resultado
+     */
+    public function finalizar(int $id): Resultado {
+        $resultado = new Resultado();
+        try {
+            DB::beginTransaction();
+            $pedido = $this->getPedido($id);
+            if ($pedido === null) {
+                $resultado->agregarError(Resultado::ERROR_GENERICO, "No se ha encontrado el pedido a guardar.");
+            }
+            $pedido->finalizar();
+            $pedido->save();
+            DB::commit();
+            $resultado->agregarMensaje("El local ha recibido su pedido con éxito. Se estima que podrá retirarse en 40 minutos.");
+        } catch (Throwable $exc) {
+            DB::rollback();
+            $resultado->agregarError(Resultado::ERROR_GENERICO, "Hubo un error al guardar el pedido.");
+        }
+        return $resultado;
+    }
+
     public function getProductoService(): ProductoService {
         return $this->productoService;
     }

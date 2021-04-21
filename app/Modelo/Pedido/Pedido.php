@@ -34,6 +34,27 @@ class Pedido extends GenericModel {
     }
 
     /**
+     * Finaliza el pedido actual.
+     *
+     * @return Resultado
+     */
+    public function finalizar() {
+        $resultado = new Resultado();
+        try {
+            $estado = new Estado();
+            $estado->fecha     = new Carbon();
+            $estado->pedido_id = $this->id;
+            $estado->estado    = Estado::FINALIZADO;
+            $estado->save();
+            $this->ultimoEstado = $estado->estado;
+            $this->save();
+        } catch(\Throwable $exc) {
+            $resultado->agregarError(Resultado::ERROR_GUARDADO, "Hubo un error al guardar el pedido.");
+        }
+        return $resultado;
+    }
+
+    /**
      * Las líneas que pertenecen al producto.
      *
      * @return HasMany

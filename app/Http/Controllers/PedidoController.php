@@ -89,6 +89,28 @@ class PedidoController extends Controller {
         ), 200);
     }
 
+    public function finalizar($id) {
+        if ($id <= 0) {
+            return response()->json([
+                'message' => 'El pedido a guardar es inválido.',
+            ], 500);
+        }
+        $servicio = $this->getPedidoService();
+        $borrado  = $servicio->finalizar($id);
+        if ($borrado->error()) {
+            $errores = $borrado->getMensajesError();
+            return Response::json(array(
+                'code' => 500,
+                'message' => "$errores"
+            ), 500);
+        }
+        $mensaje = $borrado->getMensajes();
+        return Response::json(array(
+            'code'	  => 200,
+            'message' => $mensaje,
+        ), 200);
+    }
+
     protected function getPedidoService(): PedidoService {
         return $this->pedidoService;
     }
