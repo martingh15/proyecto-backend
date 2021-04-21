@@ -46,6 +46,7 @@ class Pedido extends GenericModel {
             $estado->pedido_id = $this->id;
             $estado->estado    = Estado::FINALIZADO;
             $estado->save();
+            $this->forzar       = false;
             $this->ultimoEstado = $estado->estado;
             $this->save();
         } catch(\Throwable $exc) {

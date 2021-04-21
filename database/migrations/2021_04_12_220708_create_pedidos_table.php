@@ -20,6 +20,7 @@ class CreatePedidosTable extends Migration
             $table->dateTime('fecha');
             $table->string('ultimoEstado')->default(Estado::ABIERTO);
             $table->float('total')->default(0);
+            $table->boolean('forzar')->default(false);
 
             $table->dateTime('auditoriaCreado');
             $table->dateTime('auditoriaBorrado')->nullable();

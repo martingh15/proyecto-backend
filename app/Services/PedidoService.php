@@ -81,13 +81,14 @@ class PedidoService  {
             $nuevo     = new Pedido();
             if (intval($idPedido) > 0) {
                 $nuevo = $this->getPedido($idUsuario, Estado::ABIERTO);
-                $nuevo = $this->getPedido($idUsuario, Estado::ABIERTO);
             }
             if (intval($nuevo->id) !== intval($idPedido)) {
                 \Log::info("ALERTA: Se están duplicando los pedidos");
             }
+            $forzar = isset($pedido['forzar']) ? (bool) $pedido['forzar'] : false;
             $nuevo->usuario_id = $idUsuario;
             $nuevo->fecha      = Carbon::now();
+            $nuevo->forzar     = $forzar;
             $nuevo->save();
             $lineasArray = $pedido['lineas'];
             $guardadas   = $this->guardarLineas($nuevo, $lineasArray);
