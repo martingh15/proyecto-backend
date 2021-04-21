@@ -31,14 +31,19 @@ class PedidoService  {
      * Busca el último pedido abierto
      *
      * @param int $idUsuario
+     * @param string $estado ver constantes Estado::*
      * @return Pedido|null
      */
-    public function getPedidoAbierto(int $idUsuario): ?Pedido {
+    public function getPedido(int $idUsuario, string $estado): ?Pedido {
         $pedido = null;
         try {
+            $estadoValido = in_array($estado, Estado::ESTADOS);
+            if (!$estadoValido) {
+                return null;
+            }
             $pedido = Pedido::where([
                 ['usuario_id', $idUsuario],
-                ['ultimoEstado', Estado::ABIERTO]
+                ['ultimoEstado', $estado]
             ])->with('lineas')->orderBy('fecha', 'DESC')->first();
         } catch (Throwable $exc) {
             return null;
@@ -51,7 +56,7 @@ class PedidoService  {
      *
      * @return Pedido|null
      */
-    public function getPedido(int $id): ?Pedido {
+    public function getPedidoPorId(int $id): ?Pedido {
         try {
             $pedido = Pedido::find($id);
         } catch (Throwable $exc) {
@@ -75,7 +80,8 @@ class PedidoService  {
             $idPedido  = $pedido['id'];
             $nuevo     = new Pedido();
             if (intval($idPedido) > 0) {
-                $nuevo = $this->getPedidoAbierto($idUsuario);
+                $nuevo = $this->getPedido($idUsuario, Estado::ABIERTO);
+                $nuevo = $this->getPedido($idUsuario, Estado::ABIERTO);
             }
             if (intval($nuevo->id) !== intval($idPedido)) {
                 \Log::info("ALERTA: Se están duplicando los pedidos");
@@ -234,7 +240,7 @@ class PedidoService  {
         $resultado = new Resultado();
         try {
             DB::beginTransaction();
-            $pedido = $this->getPedido($id);
+            $pedido = $this->getPedidoPorId($id);
             if ($pedido === null) {
                 $resultado->agregarError(Resultado::ERROR_GENERICO, "No se ha encontrado el pedido a borrar.");
             }
@@ -259,7 +265,7 @@ class PedidoService  {
         $resultado = new Resultado();
         try {
             DB::beginTransaction();
-            $pedido = $this->getPedido($id);
+            $pedido = $this->getPedidoPorId($id);
             if ($pedido === null) {
                 $resultado->agregarError(Resultado::ERROR_GENERICO, "No se ha encontrado el pedido a guardar.");
             }

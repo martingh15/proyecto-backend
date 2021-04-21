@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Modelo\Pedido\Estado;
 use App\Modelo\Pedido\Pedido;
+use App\Resultado\Resultado;
 use App\Services\PedidoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -33,7 +35,7 @@ class PedidoController extends Controller {
     public function index() {
         $servicio  = $this->getPedidoService();
         $idUsuario = Auth::user()->id;
-        $pedido    = $servicio->getPedidoAbierto($idUsuario);
+        $pedido    = $servicio->getPedido($idUsuario, Estado::ABIERTO);
         $success   = true;
         if ($pedido === null) {
             $success = false;
@@ -51,18 +53,40 @@ class PedidoController extends Controller {
         $servicio  = $this->getPedidoService();
         $idUsuario = Auth::user()->id;
         $pedido    = json_decode($request->getContent(), true);
-        $nuevo     =  $servicio->guardarPedidoActivo($pedido, $idUsuario);
+
+        $finalizar = new Resultado();
+        $forzar     = isset($pedido['forzar']) ? (bool) $pedido['forzar'] : false;
+        $finalizado = $servicio->getPedido($idUsuario, Estado::FINALIZADO);
+        if ($finalizado !== null && !$forzar) {
+            $finalizar->agregarError(Resultado::ERROR_GENERICO, "Ya posee un pedido por retirar. ¿Está seguro de que quiere comenzar otro pedido?");
+        }
+
+        if ($finalizar->error()) {
+            $pedido['forzar'] = true;
+            $errores = $finalizar->getMensajesError();
+            return Response::json(array(
+                'code'    => 200,
+                'message' => $errores,
+                'forzar'  => true,
+                'pedido'  => $pedido,
+                'success' => false
+            ), 200);
+        }
+
+        $nuevo =  $servicio->guardarPedidoActivo($pedido, $idUsuario);
         if ($nuevo->error()) {
             $errores = $nuevo->getMensajesErrorArray();
             return Response::json(array(
                 'code'    => 500,
-                'message' => $errores
+                'message' => $errores,
+                'success' => false
             ), 500);
         }
-        $pedido = $servicio->getPedidoAbierto($idUsuario);
+        $pedido = $servicio->getPedido($idUsuario, Estado::ABIERTO);
         return Response::json(array(
             'code'   => 200,
-            'pedido' => $pedido
+            'pedido' => $pedido,
+            'success' => true
         ), 200);
     }
 

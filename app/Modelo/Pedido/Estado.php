@@ -10,6 +10,11 @@ class Estado extends Model {
     const ABIERTO = 'abierto';
     const FINALIZADO = 'finalizado';
 
+    const ESTADOS = [
+        self::ABIERTO,
+        self::FINALIZADO
+    ];
+
     protected $table = "pedido_estados";
 
     /**
