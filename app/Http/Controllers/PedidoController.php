@@ -66,6 +66,29 @@ class PedidoController extends Controller {
         ), 200);
     }
 
+    public function destroy(Request $request, int $id) {
+        if ($id <= 0) {
+            return response()->json([
+                'message' => 'El pedido a borrar es inválido.',
+            ], 500);
+        }
+        $servicio = $this->getPedidoService();
+        $borrado  = $servicio->borrar($id);
+        if ($borrado->error()) {
+            $errores = $borrado->getMensajesError();
+            return Response::json(array(
+                'code' => 500,
+                'message' => "$errores"
+            ), 500);
+        }
+        $mensaje = $borrado->getMensajes();
+        return Response::json(array(
+            'code'	  => 200,
+            'message' => $mensaje,
+            'usuario' => $id
+        ), 200);
+    }
+
     protected function getPedidoService(): PedidoService {
         return $this->pedidoService;
     }

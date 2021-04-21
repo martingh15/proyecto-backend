@@ -224,6 +224,31 @@ class PedidoService  {
         return $resultado;
     }
 
+    /**
+     * Borra un pedido por id.
+     *
+     * @param int $id
+     * @return Resultado
+     */
+    public function borrar(int $id): Resultado {
+        $resultado = new Resultado();
+        try {
+            DB::beginTransaction();
+            $pedido = $this->getPedido($id);
+            if ($pedido === null) {
+                $resultado->agregarError(Resultado::ERROR_GENERICO, "No se ha encontrado el pedido a borrar.");
+            }
+            $pedido->estados()->delete();
+            $pedido->lineas()->delete();
+            $pedido->delete();
+            DB::commit();
+        } catch (Throwable $exc) {
+            DB::rollback();
+            $resultado->agregarError(Resultado::ERROR_GENERICO, "Hubo un error al borrar el pedido.");
+        }
+        return $resultado;
+    }
+
     public function getProductoService(): ProductoService {
         return $this->productoService;
     }
