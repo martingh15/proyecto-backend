@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Modelo\Producto\Categoria;
 use Illuminate\Http\Request;
 
 class CategoriaController extends Controller
@@ -35,11 +36,21 @@ class CategoriaController extends Controller
     public function store(Request $request)
     {
         $bodyContent = json_decode($request->getContent(), true);
-        \Log::info($bodyContent);
+        $nombreCategoria = $bodyContent["nombre"] ?? '';
+        if (empty($nombreCategoria)){
+            return response()->json([
+                'code'	  => 500,
+                'message' => "El nombre de la categoria no puede ser vacio.",
+            ], 500);
+        }
+        $categoria = new Categoria();
+        $categoria->nombre = $nombreCategoria;
+        $categoria->save();
         return response()->json([
             'code'	  => 200,
             'success' => "Exito",
         ], 200);
+
     }
 
     /**
