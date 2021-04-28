@@ -39,4 +39,6 @@ Route::group(['middleware' => 'jwt.auth','jwt.refresh'], function () {
     Route::delete("/productos/{id}", 'ProductoController@destroy');
     Route::post("/productos/{id}", 'ProductoController@update');
     Route::get("/pedidos", 'PedidoController@index');
+    Route::resource("/categorias", 'CategoriaController');
+
 });
