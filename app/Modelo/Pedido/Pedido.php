@@ -42,7 +42,8 @@ class Pedido extends GenericModel
      *
      * @return array
      */
-    public function getIdsLineas(): array {
+    public function getIdsLineas(): array
+    {
         $ids = [];
         $lineas = $this->lineas;
         foreach ($lineas as $linea) {
@@ -56,7 +57,8 @@ class Pedido extends GenericModel
      *
      * @return Resultado
      */
-    public function finalizar() {
+    public function finalizar()
+    {
         $resultado = new Resultado();
         try {
             $estado = new Estado();
@@ -67,7 +69,7 @@ class Pedido extends GenericModel
             $this->forzar       = false;
             $this->ultimoEstado = $estado->estado;
             $this->save();
-        } catch(\Throwable $exc) {
+        } catch (\Throwable $exc) {
             $resultado->agregarError(Resultado::ERROR_GUARDADO, "Hubo un error al guardar el pedido.");
         }
         return $resultado;
@@ -98,7 +100,8 @@ class Pedido extends GenericModel
      *
      * @return void
      */
-    protected static function boot() {
+    public static function boot()
+    {
 
         parent::boot();
 
