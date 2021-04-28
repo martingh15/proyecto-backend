@@ -5,8 +5,26 @@ namespace App\Modelo\Pedido;
 use App\GenericModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Linea extends GenericModel {
+/**
+ * @property int $id
+ * @property int $pedido_id
+ * @property int $producto_id
+ * @property int $cantidad
+ * @property float $subtotal
+ * @property float $total
+ * @property DateTime $auditoriaCreado  
+ * @property DateTime $auditoriaBorrado
+ * @property DateTime $auditoriaModificado
+ * @property int $auditoriaCreador_id
+ * @property int $auditoriaBorradoPor_id
+ * @property int $auditoriaModificadoPor_id
+ */
+class Linea extends GenericModel
+{
 
+    /**
+     * @var string
+     */
     protected $table = "pedido_lineas";
 
     /**
@@ -21,7 +39,8 @@ class Linea extends GenericModel {
      *
      * @return BelongsTo
      */
-    public function pedido() {
+    public function pedido()
+    {
         return $this->belongsTo(Pedido::class, 'producto_id');
     }
 }

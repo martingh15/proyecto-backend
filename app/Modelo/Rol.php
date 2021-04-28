@@ -4,8 +4,22 @@ namespace App\Modelo;
 
 use App\Usuario;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Rol extends Model {
+/**
+ * @property int $id
+ * @property string $nombre
+ * @property string $legible
+ * @property string $descripcion
+ * @property bool $root
+ * @property bool $habilitado
+ * @property DateTime $auditoriaCreado
+ * @property DateTime $auditoriaModificado
+ * @property int $auditoriaCreador_id
+ * @property int $auditoriaModificadoPor_id
+ */
+class Rol extends Model
+{
 
     const ROOT     = 'root';
     const ADMIN    = 'admin';
@@ -21,6 +35,9 @@ class Rol extends Model {
         self::VENDEDOR
     ];
 
+    /**
+     * @var string
+     */
     protected $table = "roles";
 
     /**
@@ -31,14 +48,19 @@ class Rol extends Model {
     public $timestamps = false;
 
     /**
-     * The users that belong to the role.
+     * Los usuarios que poseen este rol.
+     * @return BelongsToMany
      */
-    public function users()
+    public function usuarios()
     {
         return $this->belongsToMany(Usuario::class, 'usuario_rol', 'idUsuario');
     }
-	
-	public function __toString() {
-		return $this->legible;
-	}
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->legible;
+    }
 }

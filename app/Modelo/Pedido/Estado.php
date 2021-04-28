@@ -5,10 +5,20 @@ namespace App\Modelo\Pedido;
 use App\GenericModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Estado extends GenericModel {
+/**
+ * @property int $id
+ * @property int $pedido_id
+ * @property string $estado
+ * @property DateTime $fecha
+ */
+class Estado extends GenericModel
+{
 
     const ABIERTO = 'abierto';
 
+    /**
+     * @var string
+     */
     protected $table = "pedido_estados";
 
     /**
@@ -23,8 +33,8 @@ class Estado extends GenericModel {
      *
      * @return BelongsTo
      */
-    public function pedido() {
+    public function pedido()
+    {
         return $this->belongsTo(Pedido::class, 'producto_id');
     }
-
 }

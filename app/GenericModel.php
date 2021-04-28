@@ -2,18 +2,28 @@
 
 namespace App;
 
-use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 
-class GenericModel extends Model {
+class GenericModel extends Model
+{
 
+    /**
+     * @var array
+     */
     protected $rules = array();
 
+    /**
+     * @var array
+     */
     protected $errors;
 
+    /**
+     * @var array
+     */
     protected $messages = [
         'required' => ':attribute es un campo requerido',
         'alpha' => ':attribute debe ser solo caracteres alfabeticos',
@@ -29,6 +39,10 @@ class GenericModel extends Model {
         'integer' => ":attribute debe ser un numero entero",
     ];
 
+    /**
+     * @param array $data
+     * @return bool
+     */
     public function validate($data)
     {
 
@@ -45,22 +59,32 @@ class GenericModel extends Model {
         return true;
     }
 
-    public function errors() {
+    /**
+     * @return array
+     */
+    public function errors()
+    {
         return $this->errors;
     }
 
-    public static function boot() {
-		
+    /**
+     * The "booting" method of the model.
+     *
+     * @return void
+     */
+    public static function boot()
+    {
+
         parent::boot();
 
         self::creating(function ($model) {
-            $hoy	  = Carbon::now()->setTimezone('America/Argentina/Salta')->toDateTimeString();
-			$logueado = Auth::user();
-			if (!empty($logueado)) {
-				$model->auditoriaCreador_id = $logueado->id;
-			}
-			$model->auditoriaCreado     = $hoy;
-			$model->auditoriaModificado = null;
+            $hoy      = Carbon::now()->setTimezone('America/Argentina/Salta')->toDateTimeString();
+            $logueado = Auth::user();
+            if (!empty($logueado)) {
+                $model->auditoriaCreador_id = $logueado->id;
+            }
+            $model->auditoriaCreado     = $hoy;
+            $model->auditoriaModificado = null;
         });
 
         self::created(function ($model) {
@@ -68,22 +92,22 @@ class GenericModel extends Model {
         });
 
         self::saving(function ($model) {
-			// ... code here
+            // ... code here
         });
 
         self::updating(function ($model) {
-			$logueado						  = Auth::user();
-			$hoy							  = Carbon::now()->setTimezone('America/Argentina/Salta')->toDateTimeString();
-			$model->auditoriaModificado		  = $hoy;
-			$model->auditoriaModificadoPor_id = $logueado->id;
+            $logueado                         = Auth::user();
+            $hoy                              = Carbon::now()->setTimezone('America/Argentina/Salta')->toDateTimeString();
+            $model->auditoriaModificado       = $hoy;
+            $model->auditoriaModificadoPor_id = $logueado->id;
         });
 
         self::updated(function ($model) {
             // ... code here
         });
 
-        static::deleting(function($usuario) {
-            $logueado						 = Auth::user();
+        static::deleting(function ($usuario) {
+            $logueado                        = Auth::user();
             $usuario->auditoriaBorradoPor_id = $logueado->id;
             $usuario->save();
         });

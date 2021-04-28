@@ -6,13 +6,26 @@ use App\GenericModel;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Categoria extends GenericModel {
+/**
+ * @property int $id
+ * @property int $superior_id
+ * @property string $nombre
+ * @property bool $habilitado
+ * @property DateTime $auditoriaCreado
+ * @property DateTime $auditoriaBorrado
+ * @property DateTime $auditoriaModificado
+ * @property int $auditoriaCreador_id
+ * @property int $auditoriaBorradoPor_id
+ * @property int $auditoriaModificadoPor_id
+ */
+class Categoria extends GenericModel
+{
 
     use SoftDeletes;
 
     const DELETED_AT = "auditoriaBorrado";
-	
-	protected $table = "producto_categorias";
+
+    protected $table = "producto_categorias";
 
     /**
      * Indicates if the model should be timestamped.
@@ -33,8 +46,8 @@ class Categoria extends GenericModel {
      *
      * @return HasMany
      */
-    public function productos() {
-       return $this->hasMany(Producto::class, "categoria_id" ,"id");
+    public function productos()
+    {
+        return $this->hasMany(Producto::class, "categoria_id", "id");
     }
-    
 }
