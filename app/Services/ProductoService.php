@@ -7,40 +7,46 @@ use App\Modelo\Producto\Producto;
 use App\Resultado\Resultado;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Intervention\Image\Facades\Image;
 use Throwable;
 use Validator;
 
-class ProductoService  {
-	
+class ProductoService
+{
+
 	// <editor-fold defaultstate="collapsed" desc="Búsquedas">
 
-    public function getProducto(int $id): ?Producto {
-        $producto = Producto::where([['id', $id]])->first();
-        return $producto;
-    }
+	public function getProducto(int $id): ?Producto
+	{
+		$producto = Producto::where([['id', $id]])->first();
+		return $producto;
+	}
 
-	public function getProductos() {
+	public function getProductos()
+	{
 		$productos = Producto::where('habilitado', 1)->with('categoria')->get();
 		foreach ($productos as $producto) {
 			$precio		 = $producto->precioVigente;
 			$precioTexto = number_format($precio, 2, ",", ".");
 			$categoria	 = $producto->categoria;
 			$nombre		 = $categoria->nombre;
-			
+
 			$producto['precioTexto']	 = "$ $precioTexto";
 			$producto['categoriaNombre'] = $nombre;
 		}
 		return $productos;
 	}
-	
-	public function getCategorias() {
+
+	public function getCategorias()
+	{
 		return Categoria::where('habilitado', 1)->with('productos')->get();
-	}	
+	}
 	// </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="Alta de productos">
-	public function guardarProducto(Request $request, int $id = null): Resultado {
+	// <editor-fold defaultstate="collapsed" desc="Alta de productos">
+	public function guardarProducto(Request $request, int $id = null): Resultado
+	{
 		$resultado   = new Resultado();
 		try {
 			DB::beginTransaction();
@@ -50,7 +56,7 @@ class ProductoService  {
 			$descripcion   = $productoArray['descripcion'] ?? '';
 			$nuevoPrecio   = (float) $productoArray['precioVigente'] ?? 0;
 			$idCategoria   = (int) $productoArray['categoria_id'] ?? 0;
-			
+
 			if (empty($nombre)) {
 				$resultado->agregarError(Resultado::ERROR_GUARDADO, "Debe ingresar el nombre del producto.");
 			}
@@ -60,33 +66,33 @@ class ProductoService  {
 			}
 			if ($nuevoPrecio <= 0) {
 				$resultado->agregarError(Resultado::ERROR_GUARDADO, "Debe indicar el precio del producto.");
-			}			
-			
+			}
+
 			if ($resultado->error()) {
 				return $resultado;
 			}
 
 			$producto = new Producto();
 			if ($id !== null && is_numeric($id) && $id > 0) {
-			    $producto = $this->getProducto($id);
-            }
+				$producto = $this->getProducto($id);
+			}
 			if ($producto === null) {
-                $resultado->agregarError(Resultado::ERROR_GUARDADO, "No se ha encontrado el producto a editar.");
-                return $resultado;
-            }
+				$resultado->agregarError(Resultado::ERROR_GUARDADO, "No se ha encontrado el producto a editar.");
+				return $resultado;
+			}
 
-            $producto->nombre		= $nombre;
+			$producto->nombre		= $nombre;
 			$producto->categoria_id = $categoria->id;
 			$producto->descripcion  = $descripcion;
-            $producto->save();
-            $producto->agregarPrecio($nuevoPrecio);
+			$producto->save();
+			$producto->agregarPrecio($nuevoPrecio);
 
-		
+
 			$imagen	= $request->file('imagen');
 			if ($imagen === null) {
-                DB::commit();
-                return $resultado;
-            }
+				DB::commit();
+				return $resultado;
+			}
 			$creada = $this->crearImagen($producto, $imagen);
 			$creada->fusionar($resultado);
 			if ($creada->error()) {
@@ -101,12 +107,13 @@ class ProductoService  {
 			DB::commit();
 		} catch (Throwable $t) {
 			$resultado->agregarError(Resultado::ERROR_GENERICO, "Ha ocurrido un error al guardar el producto.");
-			\Log::info($t);
+			Log::info($t);
 		}
 		return $resultado;
 	}
-	
-	protected function crearImagen(Producto $producto, $imagen): Resultado {
+
+	protected function crearImagen(Producto $producto, $imagen): Resultado
+	{
 		$resultado = new Resultado();
 		try {
 			//custom mensajes en las validaciones.
@@ -148,46 +155,47 @@ class ProductoService  {
 			});
 
 			//Guardo la imagen
-            $nombreOriginal = $imagen->getClientOriginalName();
+			$nombreOriginal = $imagen->getClientOriginalName();
 			if ($producto->fileImagen !== $nombreOriginal) {
-                $producto->imagen     = $fileName;
-                $producto->fileImagen = $nombreOriginal;
-                $img->save($carpeta);
-                if ($resultado->error() && $img instanceof Image) {
-                    $img->destroy();
-                }
-            }
-            $resultado->setResultado($producto);
+				$producto->imagen     = $fileName;
+				$producto->fileImagen = $nombreOriginal;
+				$img->save($carpeta);
+				if ($resultado->error() && $img instanceof Image) {
+					$img->destroy();
+				}
+			}
+			$resultado->setResultado($producto);
 			return $resultado;
 		} catch (Throwable $exception) {
-			\Log::info('Error imagen:' . $exception);
+			Log::info('Error imagen:' . $exception);
 			$resultado->agregarError(Resultado::ERROR_GUARDADO, "Hubo un error al guardar la imagen.");
 		}
-        return $resultado;
-    }
+		return $resultado;
+	}
 
-    // </editor-fold>
+	// </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="Borrado de productos">
-    public function borrarProducto(int $id): Resultado {
-        try {
-            DB::beginTransaction();
-            $producto  = $this->getProducto($id);
-            $resultado = new Resultado();
-            if (empty($producto)) {
-                $resultado->agregarError(Resultado::ERROR_NO_ENCONTRADO, "No se ha encontrado el producto a borrar");
-                return $resultado;
-            }
-            array_map('unlink', glob(public_path() . "/img/productos/$id-*"));
-            $producto->delete();
-            DB::commit();
-        } catch (Throwable $t) {
-            DB::rollback();
-            $resultado->agregarError(Resultado::ERROR_NO_ENCONTRADO, "Hubo un error al borrar el producto.");
-            \Log::info("Hubo un error al borrar el producto: " . (string) $t);
-        }
-        return $resultado;
-    }
-    // </editor-fold>
+	// <editor-fold defaultstate="collapsed" desc="Borrado de productos">
+	public function borrarProducto(int $id): Resultado
+	{
+		try {
+			DB::beginTransaction();
+			$producto  = $this->getProducto($id);
+			$resultado = new Resultado();
+			if (empty($producto)) {
+				$resultado->agregarError(Resultado::ERROR_NO_ENCONTRADO, "No se ha encontrado el producto a borrar");
+				return $resultado;
+			}
+			array_map('unlink', glob(public_path() . "/img/productos/$id-*"));
+			$producto->delete();
+			DB::commit();
+		} catch (Throwable $t) {
+			DB::rollback();
+			$resultado->agregarError(Resultado::ERROR_NO_ENCONTRADO, "Hubo un error al borrar el producto.");
+			Log::info("Hubo un error al borrar el producto: " . (string) $t);
+		}
+		return $resultado;
+	}
+	// </editor-fold>
 
 }

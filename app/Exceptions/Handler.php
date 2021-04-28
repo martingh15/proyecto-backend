@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 
 class Handler extends ExceptionHandler
@@ -59,16 +60,16 @@ class Handler extends ExceptionHandler
             return $exception->render();
         }
 
-        \Log::info("handler");
-        \Log::info($exception);
-        \Log::info($exception->getMessage());
+        Log::info("handler");
+        Log::info($exception);
+        Log::info($exception->getMessage());
 
         switch ($exception->getMessage()) {
             default:
                 return response()->json([
-					'message' => "Ocurrió un error inesperado. Intentelo nuevamente. Si el problema persiste comuníquese con el administrador.",
-					'error'	  => (string) $exception
-				], 500);
+                    'message' => "Ocurrió un error inesperado. Intentelo nuevamente. Si el problema persiste comuníquese con el administrador.",
+                    'error'      => (string) $exception
+                ], 500);
         }
     }
 

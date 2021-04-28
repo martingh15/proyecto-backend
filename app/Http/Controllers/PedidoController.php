@@ -6,7 +6,8 @@ use App\Modelo\Pedido\Pedido;
 use App\Services\PedidoService;
 use Illuminate\Http\JsonResponse;
 
-class PedidoController extends Controller {
+class PedidoController extends Controller
+{
 
     /**
      * @var PedidoService
@@ -18,7 +19,8 @@ class PedidoController extends Controller {
      *
      * @param PedidoService $pedidoService
      */
-    public function __construct(PedidoService $pedidoService) {
+    public function __construct(PedidoService $pedidoService)
+    {
         $this->pedidoService = $pedidoService;
     }
 
@@ -27,21 +29,23 @@ class PedidoController extends Controller {
      *
      * @return JsonResponse|Pedido
      */
-    public function index() {
+    public function index()
+    {
         $servicio = $this->getPedidoService();
-        $pedido   =  $servicio->getPedidoAbierto();
+        $pedido   = $servicio->getPedidoAbierto();
         $success  = true;
         if ($pedido === null) {
             $success = false;
         }
         return response()->json([
-            'code'	  => 200,
+            'code'      => 200,
             'success' => $success,
             'pedido'  => $pedido
         ], 200);;
     }
 
-    protected function getPedidoService(): PedidoService {
+    protected function getPedidoService(): PedidoService
+    {
         return $this->pedidoService;
     }
 }

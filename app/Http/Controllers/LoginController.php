@@ -16,12 +16,15 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Str;
-use JWTAuth;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
-class LoginController extends Controller {
+class LoginController extends Controller
+{
 
     /**
      * @var UsuarioService
@@ -154,7 +157,7 @@ class LoginController extends Controller {
             $usuario->fechaTokenReset = null;
             //$usuario->save();
         } catch (Exception $exc) {
-            \Log::info($exc->getTraceAsString());
+            Log::info($exc->getTraceAsString());
         }
         if ($usuario === null) {
             return Response::json(array(
@@ -241,7 +244,8 @@ class LoginController extends Controller {
     /**
      * @return UsuarioService
      */
-    protected function getUsuarioService(): UsuarioService {
+    protected function getUsuarioService(): UsuarioService
+    {
         return $this->usuarioService;
     }
 }

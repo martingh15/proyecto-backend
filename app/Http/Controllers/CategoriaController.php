@@ -35,22 +35,21 @@ class CategoriaController extends Controller
      */
     public function store(Request $request)
     {
-        $bodyContent = json_decode($request->getContent(), true);
+        $bodyContent     = json_decode($request->getContent(), true);
         $nombreCategoria = $bodyContent["nombre"] ?? '';
-        if (empty($nombreCategoria)){
+        if (empty($nombreCategoria)) {
             return response()->json([
-                'code'	  => 500,
+                'code'    => 500,
                 'message' => "El nombre de la categoria no puede ser vacio.",
             ], 500);
         }
-        $categoria = new Categoria();
+        $categoria         = new Categoria();
         $categoria->nombre = $nombreCategoria;
         $categoria->save();
         return response()->json([
-            'code'	  => 200,
+            'code'    => 200,
             'success' => "Exito",
         ], 200);
-
     }
 
     /**
