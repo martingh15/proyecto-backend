@@ -15,6 +15,12 @@ class Estado extends GenericModel
 {
 
     const ABIERTO = 'abierto';
+    const FINALIZADO = 'finalizado';
+
+    const ESTADOS = [
+        self::ABIERTO,
+        self::FINALIZADO
+    ];
 
     /**
      * @var string

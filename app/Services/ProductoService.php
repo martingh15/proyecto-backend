@@ -106,6 +106,7 @@ class ProductoService
 			$nuevo->save();
 			DB::commit();
 		} catch (Throwable $t) {
+            DB::rollback();
 			$resultado->agregarError(Resultado::ERROR_GENERICO, "Ha ocurrido un error al guardar el producto.");
 			Log::info($t);
 		}

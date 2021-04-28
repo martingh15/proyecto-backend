@@ -35,7 +35,7 @@ class Linea extends GenericModel
     public $timestamps = false;
 
     /**
-     * La categoría al la cual el producto pertenece.
+     * El pedido de la línea.
      *
      * @return BelongsTo
      */
