@@ -17,9 +17,7 @@ class InsertarCategorias extends Migration
             array(
                 'id' => null,
                 'superior_id' => null,
-                'codigo' => 'H1',
                 'nombre' => 'Hamburguesas',
-                'orden' => 1,
                 'habilitado' => 1,
                 'auditoriaCreado' => "$hoy",
                 'auditoriaBorrado' => null,
@@ -33,9 +31,7 @@ class InsertarCategorias extends Migration
             array(
                 'id' => null,
                 'superior_id' => null,
-                'codigo' => 'B1',
                 'nombre' => 'Bebidas',
-                'orden' => 1,
                 'habilitado' => 1,
                 'auditoriaCreado' => "$hoy",
                 'auditoriaBorrado' => null,
@@ -49,9 +45,7 @@ class InsertarCategorias extends Migration
             array(
                 'id' => null,
                 'superior_id' => null,
-                'codigo' => 'P1',
                 'nombre' => 'Pizzas',
-                'orden' => 1,
                 'habilitado' => 1,
                 'auditoriaCreado' => "$hoy",
                 'auditoriaBorrado' => null,
@@ -65,9 +59,7 @@ class InsertarCategorias extends Migration
             array(
                 'id' => null,
                 'superior_id' => null,
-                'codigo' => 'C1',
                 'nombre' => 'Cervezas en lata',
-                'orden' => 1,
                 'habilitado' => 1,
                 'auditoriaCreado' => "$hoy",
                 'auditoriaBorrado' => null,

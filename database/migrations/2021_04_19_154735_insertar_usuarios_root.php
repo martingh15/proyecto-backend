@@ -5,6 +5,7 @@ use App\Usuario;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\Schema;
 
 class InsertarUsuariosRoot extends Migration
 {
@@ -120,7 +121,10 @@ class InsertarUsuariosRoot extends Migration
      * @return void
      */
     public function down() {
+        Schema::enableForeignKeyConstraints();
         DB::table('usuario_rol')->delete();
         DB::table('usuarios')->delete();
+        Schema::disableForeignKeyConstraints();
+
     }
 }

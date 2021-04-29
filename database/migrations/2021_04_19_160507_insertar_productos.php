@@ -14,7 +14,7 @@ class InsertarProductos extends Migration
      */
     public function up() {
         $hoy = Carbon::now()->toDateTimeString();
-        $hamburguesas = Categoria::where('codigo', 'H1')->first();
+        $hamburguesas = Categoria::where('nombre', 'Hamburguesas')->first();
         DB::table('producto_productos')->insert(
             array(
                 'id'              => null,
